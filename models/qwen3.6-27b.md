@@ -16,6 +16,8 @@ verdict:          The 4-bit NVFP4 release preserves the base model's behavior to
 
 > **4-bit quantization of this model is genuinely near-lossless behaviorally: the real risk isn't quality loss, it's a serving trap: the official NVFP4 release can silently produce garbage output on some hardware/engine combinations even though the weights themselves are fine.**
 
+<img src="../cards/img/qwen3.6-27b.png" width="380" alt="Qwen3.6-27B offlabel card">
+
 ## The offlabel behavioral axis map (the consistent spine: every guide + card follows this)
 Coverage tag per axis: **✅ measured** (held-out, head-to-head) · **🟡 observational** · **⬚ backlog** (not tested yet).
 

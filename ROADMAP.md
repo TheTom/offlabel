@@ -42,7 +42,7 @@ Most guides currently have several axes marked `⬚ backlog` (honestly untested)
 - ⬚ **Finalize DRAFT cards**: several cards are marked DRAFT (single/older test run); firm them up with repeat runs, then drop the DRAFT flag.
 - ⬚ **Cross-model comparison strip**: a single shareable image: rows = models, columns = Thinking rec / Harness fit / Best-at / Top blind-spot. The "which model do I pick" view.
 - ⬚ **"Ask it like this" card element**: surface the top validated prompt-setup tip on the card once §5b has validated entries.
-- ⬚ **PNG export**: render cards to static images for easy sharing (X, docs).
+- 🔵 **PNG export**: rendered PNGs live in `cards/img/` and are embedded in the README gallery + each guide so GitHub actually shows the infographics. Done for the published set (Ornith 35B/9B, Qwen3.6-27B); render the rest (Gemma per-size, Laguna) as they publish. Pipeline: wrap card fragment in a white-bg standalone, headless Chrome `--screenshot` at 2x, PIL auto-trim.
 
 ## 5. Rigor / method
 - ⬚ **Multi-seed / repeat runs**: several guides rest on a single test run (flagged in their confidence lines). Re-run with multiple seeds to move single-run findings from "anecdote" to "signal."

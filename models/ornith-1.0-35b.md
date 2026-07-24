@@ -16,6 +16,8 @@ verdict:          Genuinely strong long-horizon agentic coder, not benchmark hyp
 
 > **Marketing claimed it "crushes" benchmarks. On held-out, never-seen scenarios it doesn't crush anything, but it does win long-horizon agentic coding decisively, at the cost of being slower to just do a legitimate task.**
 
+<img src="../cards/img/ornith-1.0-35b.png" width="380" alt="Ornith-1.0-35B offlabel card">
+
 ## The offlabel behavioral axis map (the consistent spine: every guide + card follows this)
 Coverage tag per axis: **✅ measured** (held-out, head-to-head) · **🟡 observational** (noted from use, not formally scored) · **⬚ backlog** (not tested yet).
 

@@ -10,6 +10,17 @@ across a long multi-turn task, or capitulate to a false premise and then paper o
 None of that shows up in a pass@1 number. It shows up when you actually use the thing. This repo is the
 "actually use the thing" notes, written down so you don't have to rediscover them yourself.
 
+## The cards
+
+Every model gets a shareable **card**: an at-a-glance infographic with the operating dials (thinking, tools,
+sampling) and a green/red **Trust Map** of where it holds vs folds under pressure. Full write-up in each guide.
+
+<p align="left">
+  <a href="models/ornith-1.0-35b.md"><img src="cards/img/ornith-1.0-35b.png" width="270" alt="Ornith-1.0-35B offlabel card"></a>
+  <a href="models/ornith-1.0-9b.md"><img src="cards/img/ornith-1.0-9b.png" width="270" alt="Ornith-1.0-9B offlabel card"></a>
+  <a href="models/qwen3.6-27b.md"><img src="cards/img/qwen3.6-27b.png" width="270" alt="Qwen3.6-27B offlabel card"></a>
+</p>
+
 ## Why usage guidance and not another benchmark
 
 Static benchmarks assume a model is a fixed function: same input, same output, one true score. Modern models

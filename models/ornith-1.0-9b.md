@@ -16,6 +16,8 @@ verdict:          A genuine, efficiency-forward upgrade for sustained agentic co
 
 > **At 9B, RL post-training bought roughly 2x token efficiency and stronger sustained multi-turn coherence, but traded away a bit of single-turn snap judgment and long-context/poison-resistance cleanliness versus its own base. Not a clean upgrade in every direction.**
 
+<img src="../cards/img/ornith-1.0-9b.png" width="380" alt="Ornith-1.0-9B offlabel card">
+
 ## The offlabel behavioral axis map (the consistent spine: every guide + card follows this)
 Coverage tag per axis: **✅ measured** (held-out, head-to-head vs its own base) · **🟡 observational** · **⬚ backlog** (not tested yet).
 
