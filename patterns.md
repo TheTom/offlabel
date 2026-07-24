@@ -1,0 +1,78 @@
+# patterns: recurring lessons across models
+
+Findings that showed up on more than one model, so they don't get re-derived (or missed) per guide. Each
+model's own `models/<name>.md` cites the specific evidence; this file is the cross-cutting summary.
+
+## Thinking is axis-dependent, not free, and is often net-negative on execution work
+
+The single biggest recurring finding across every model we've run a thinking on/off comparison on: extended
+reasoning **helps a narrow band of axes** (competence/critical-path picks, metacognition-style catches, long-context
+recall) and is **wasteful-to-actively-harmful everywhere else**, including, counterintuitively for a coding
+model, large single-shot deliverables and long multi-turn debugging.
+
+- Thinking can make a model *less* trustworthy, not more. In one thinking-ablation test, the "thinking on" arm
+  reasoned itself *into* endorsing a falsified status signal that the no-think arm flatly refused. Extended
+  reasoning talked the model into rationalizing a violation it wouldn't otherwise commit.
+- Thinking can sabotage the model's actual job. On a "produce a complete multi-part deliverable in one shot"
+  task, the thinking-on arm burned its entire token budget reasoning and emitted **nothing**, while thinking-off
+  shipped the complete deliverable. More reasoning budget did not fix this. It got worse with a bigger cap.
+- A fixed *small* thinking cap (e.g. ~2K tokens) is a false economy, not a middle ground: the model spends the
+  cap mid-thought and truncates to an empty answer at a high rate (observed in the 15-55% range depending on
+  task length), which scores worse than either "off" or "on-with-full-budget."
+- Cost asymmetry is large: thinking-off ran at roughly ⅓ the token cost of thinking-on on short turns, and as
+  little as 1/10th the cost on long multi-turn work.
+
+**Actionable takeaway:** default thinking **OFF** for execution, code delivery, integrity-sensitive turns, and
+quick factual answers. Reserve thinking **ON** for isolated, genuinely hard reasoning/recall turns: a
+decompose-the-problem decision, a catch-the-planted-bug moment, a long-context synthesis. Don't assume "more
+reasoning = safer or better". Test it per model, because the harmful cases above were not edge cases, they
+were the model's core job.
+
+## A fine-tune (or an RL-trained variant) is not automatically a strict superset of its base
+
+RL/fine-tune gains transfer unevenly across axes, and unevenly across model scale. A model can win decisively
+on the axes its training targeted (e.g. long-horizon coherence, resisting a false premise injected mid-task,
+completing large deliverables) while measurably regressing on a different axis the training didn't target
+(e.g. over-gating legitimate requests it should just execute, or thrashing visibly on tight iterative-debug
+loops). The honest verdict is almost always a **trade profile**, not a strict win or loss: describe what
+was won and what was given up, not just a single "better/worse."
+
+Corollary from small-model RL transfer: gains that show up cleanly at large scale (e.g. long-context recall,
+sustained coherence) can be *thinner* at small scale, while efficiency gains (fewer tokens per turn for the
+same task) can transfer more cleanly than raw capability gains.
+
+## Quantization can preserve behavior even when you'd expect it not to
+
+A 4-bit quantization of one model came back essentially behaviorally identical to its full-precision base
+across a full held-out behavioral battery: no gate regressed, differences were small and bidirectional
+(consistent with quantization noise, not degradation). The lesson: don't assume a lower-bit quant changes how
+a model *behaves* just because it changes how it predicts tokens on paper (perplexity). If you care about
+behavior, test behavior: a perplexity number alone won't tell you whether the quantized model still acts the
+same under pressure.
+
+## Marketing claims of "crushes the benchmark" deserve a held-out check, not a leaderboard read
+
+More than one model shipped with breathless "beats X on public coding benchmarks" marketing. The useful
+question isn't "does it beat the number" (public benchmarks are contamination-prone and one score three
+points apart is usually inside noise); it's **"does the claimed edge generalize to work the model has never
+seen, on axes the benchmark doesn't test at all"** (integrity under pressure, over-refusal, long-horizon
+coherence). In the strongest case we tested, the answer was genuinely yes on the axes that matter for
+long-running agentic work (resisting an injected false premise, finishing a large deliverable, catching a
+subtle planted bug), but that same model carried a real, describable cost the benchmark never showed
+(over-cautious gatekeeping of legitimate requests, visible thrashing on tight iterative loops). Verdict:
+**not benchmark fraud, genuinely strong, but with a specific, nameable personality trade-off.** That's the
+verdict shape to expect and to write honestly: name the trade, don't just declare a winner.
+
+## A single test run is an anecdote; judge noise is real
+
+Any evaluation that uses an LLM as judge on subjective/behavioral scenarios has measurable judge noise. We've
+seen the same output re-judged and land a few points apart purely from judge variance. Treat any gap smaller
+than a handful of scenarios as noise, not signal. This is why every guide's confidence line states how many
+scenarios backed a claim and whether it was multi-vote: a claim from a single ungraded run is weaker evidence
+than a claim from a repeated, multi-vote comparison, and the guides say which is which.
+
+## Sources
+Synthesized from internal behavioral testing across several models (Ornith-1.0-35B, Ornith-1.0-9B,
+Qwopus-Coder thinking ablation, Qwen3.6-27B quantization comparison) plus the general finding that externalizing
+reasoning substitutes for, rather than adds to, a model's internal working capacity, which independently
+supports why thinking helps recall/deliberation but doesn't help (and can hurt) direct production work.
