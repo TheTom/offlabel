@@ -16,6 +16,7 @@ Every model gets a shareable **card**: an at-a-glance infographic with the opera
 sampling) and a green/red **Trust Map** of where it holds vs folds under pressure. Full write-up in each guide.
 
 <p align="left">
+  <a href="models/laguna-s-2.1.md"><img src="cards/img/laguna-s-2.1.png" width="270" alt="Laguna S 2.1 offlabel card"></a>
   <a href="models/ornith-1.0-35b.md"><img src="cards/img/ornith-1.0-35b.png" width="270" alt="Ornith-1.0-35B offlabel card"></a>
   <a href="models/ornith-1.0-9b.md"><img src="cards/img/ornith-1.0-9b.png" width="270" alt="Ornith-1.0-9B offlabel card"></a>
   <a href="models/qwen3.6-27b.md"><img src="cards/img/qwen3.6-27b.png" width="270" alt="Qwen3.6-27B offlabel card"></a>

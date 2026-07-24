@@ -14,7 +14,7 @@ What's here now and what's next. offlabel guides are snapshots, not permanent ve
 | Ornith-1.0-9B | ✅ done | |
 | Qwen3.6-27B | ✅ done | quant-fidelity + serving-trap |
 | Gemma-4 family (E2B-31B) | ✅ done | per-size guides + cards + slim family overview (each size behaves differently) |
-| Laguna S 2.1 | 🔵 in progress | stub in place; verdict pending final probe |
+| Laguna S 2.1 | ✅ done | full guide + card + PNG; 3-arm thinking ablation, mitigation clause, long-agentic (OFF 30/30 vs ON hung) |
 | Qwopus-Coder | ⬚ held | confidentiality, needs owner OK + public/private call before it can ship publicly |
 | Qwen3.5-9B / stock Qwen3.6-35B-A3B | ⬚ planned | baseline behavioral data already exists (used as behavioral baselines) → stub guides |
 | Robustness-trained Gemma-4-12B variant (internal) | ⬚ planned | behavioral delta vs base already measured |
