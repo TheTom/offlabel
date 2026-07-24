@@ -46,6 +46,7 @@ Most guides currently have several axes marked `⬚ backlog` (honestly untested)
 
 ## 5. Rigor / method
 - ⬚ **Multi-seed / repeat runs**: several guides rest on a single test run (flagged in their confidence lines). Re-run with multiple seeds to move single-run findings from "anecdote" to "signal."
+- ⬚ **More `pool` (native-harness) data on Laguna**: the Laguna §5c addendum is **n=1** (one ~1h build). The 🟡 observations (oracle discipline, thinking-stays-bounded, scope-narrowing, fit-to-test) need run-to-run repeats + more task types (refactor / debug / multi-file) before any promote to ✅. Also A/B the `reasoning_effort` config setting.
 - ⬚ **Long-context / long-agentic regime**: standardize the long-session non-termination probe (loops, cold-prefill, drift) as a repeatable axis, not a one-off.
 - ⬚ **Re-verification discipline**: when a vendor patches/re-quantizes a model, re-run and add a changelog entry rather than letting a guide silently go stale. (Gemma's July patch is the cautionary tale: a "small" patch was template-only but still shifted safety-relevant behavior.)
 
