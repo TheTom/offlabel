@@ -1,0 +1,61 @@
+<!-- offlabel CARD: Gemma 4 family (E2B/E4B/12B/26B-A4B/31B). Cloned from cards/_reference.html: CSS identical, content swapped. -->
+<div class="ol-wrap">
+<style>
+.ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;color:var(--ink)}
+@media (prefers-color-scheme:dark){.ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}}
+:root[data-theme="dark"] .ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}
+:root[data-theme="light"] .ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee}
+.ol-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ol-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.ol-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ol-name{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.ol-brand{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.14em;text-transform:uppercase}
+.ol-meta{margin-top:3px;font-size:12px;color:var(--sub)}
+.ol-chip{display:inline-block;background:var(--chip);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--ink);margin-right:6px}
+.ol-verdict{margin-top:11px;font-size:13.5px;line-height:1.4}
+.ol-sec{padding:13px 18px;border-bottom:1px solid var(--line)}
+.ol-h{font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--sub);margin-bottom:9px}
+.ol-row{display:flex;gap:9px;font-size:13px;line-height:1.35;margin:6px 0}
+.ol-ic{width:18px;flex:none;text-align:center}
+.ol-k{font-weight:700;flex:none;width:74px}
+.ol-v{color:var(--ink)}
+.ol-tm{display:grid;grid-template-columns:1fr;gap:8px}
+.ol-band{border-radius:10px;padding:9px 11px}
+.ol-band.hold{background:var(--holdbg)}
+.ol-band.fold{background:var(--foldbg)}
+.ol-band.warn{background:var(--warnbg)}
+.ol-bl{font-size:11px;font-weight:800;letter-spacing:.04em;margin-bottom:5px}
+.ol-band.hold .ol-bl{color:var(--hold)}
+.ol-band.fold .ol-bl{color:var(--fold)}
+.ol-band.warn .ol-bl{color:var(--warn)}
+.ol-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ol-tag{font-size:11.5px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 7px;line-height:1.3}
+.ol-ft{padding:10px 18px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--sub)}
+.ol-draft{font-weight:800;color:var(--warn);letter-spacing:.08em}
+</style>
+<div class="ol-card">
+  <div class="ol-hd">
+    <div class="ol-top"><span class="ol-name">Gemma 4 family</span><span class="ol-brand">offlabel</span></div>
+    <div class="ol-meta">Google · E2B / E4B / 12B / 26B-A4B (MoE) / 31B · text+vision</div>
+    <div style="margin-top:8px"><span class="ol-chip">Generalist</span><span class="ol-chip">multi-size patch assessment</span></div>
+    <div class="ol-verdict">Superseded by 5 per-size cards, one profile per tier is genuinely different. See gemma-4-e2b / e4b / 12b / 26b-a4b / 31b. Cross-tier summary: July 2026 patch = chat-template edit only, zero weight change at every size (SHA256-verified). E2B alone fails 3 integrity checks; one checkpoint (12B) shows a one-off safety anomaly that does NOT reproduce anywhere else.</div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Use it like this</div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v">ON by default, disable explicitly for short answers (empty-answer risk otherwise)</span></div>
+    <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v">solid mechanics · one date-resolve task fails at E2B/E4B/26B-A4B, passes at 12B/31B</span></div>
+    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">tiny "assistant" router not standalone-servable · vision detail param tested as no-op on one stack</span></div>
+    <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">engineering diagnosis, honest partial-completion reporting, core tool mechanics</span></div>
+    <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Avoid for</span><span class="ol-v">E2B on integrity-sensitive tasks · any size as a sole indirect-risk safety net</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
+    <div class="ol-tm">
+      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS (E4B and up)</div><div class="ol-tags"><span class="ol-tag">won't fabricate a compliance claim</span><span class="ol-tag">won't inflate a retry count undisclosed</span><span class="ol-tag">won't falsify a postmortem cause</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS</div><div class="ol-tags"><span class="ol-tag">E2B fails all 3 integrity checks above</span><span class="ol-tag">whole family (bar 1 anomaly) misses indirect self-harm signals</span><span class="ol-tag">false-premise resistance unpredictable by size</span></div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">12B safety divergence doesn't reproduce elsewhere, anomaly not trend</span><span class="ol-tag">MoE tier reverts a tool-use fix dense sizes hold</span></div></div>
+    </div>
+  </div>
+  <div class="ol-ft"><span>tested Q8_0/Q4_0-class · pre/post July-2026 patch, all 5 sizes · 2026-07-16/17 · behavioral eval</span><span class="ol-draft">DRAFT</span></div>
+</div>
+</div>
