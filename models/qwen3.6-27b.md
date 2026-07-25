@@ -7,6 +7,7 @@ license:          Qwen license (check the specific release's card)
 modality:         text (+ unused vision tower in the base checkpoint)
 context:          ⬚ not independently stress-tested this pass
 class:            generalist
+hf:               https://huggingface.co/Qwen/Qwen3.6-27B
 tested_on:        BF16 base vs NVIDIA NVFP4 4-bit release (offline-dequant proxy, validated cos 0.9967), thinking off, 2026-07-02; plus a separate 4-bit-class quant/serving-engine parity check, 2026-07-13
 status:           current as of 2026-07-13; re-verify after future quant releases or vendor patches
 verdict:          The 4-bit NVFP4 release preserves the base model's behavior to within noise, but does not run correctly out-of-the-box on prosumer Blackwell GPUs under vLLM, which the model card doesn't mention.

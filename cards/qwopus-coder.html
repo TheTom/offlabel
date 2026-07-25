@@ -1,4 +1,4 @@
-<!-- offlabel CARD: Ornith-1.0-9B. Cloned from cards/_reference.html: CSS identical, content swapped. -->
+<!-- offlabel CARD: Qwopus3.6-35B-A3B-Coder. Cloned from cards/_reference.html: CSS identical, content swapped. -->
 <div class="ol-wrap">
 <style>
 .ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;color:var(--ink)}
@@ -35,28 +35,27 @@
 </style>
 <div class="ol-card">
   <div class="ol-hd">
-    <div class="ol-top"><span class="ol-name">Ornith-1.0-9B</span><span class="ol-brand">offlabel</span></div>
-    <div class="ol-meta">deepreinforce-ai · 9B dense · text · MIT</div>
-    <div style="margin-top:8px"><span class="ol-chip">Coding specialist</span><span class="ol-chip">RL post-train of own base</span></div>
-    <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/deepreinforce-ai/Ornith-1.0-9B" style="color:var(--accent);text-decoration:none">🤗 huggingface.co/deepreinforce-ai/Ornith-1.0-9B</a></div>
-    <div class="ol-verdict">~2x more token-efficient than its own base (Qwen3.5-9B) with stronger sustained debugging/orchestration, but not a strict upgrade: single-turn snap judgment and poison-resistance cleanliness slightly regress.</div>
+    <div class="ol-top"><span class="ol-name">Qwopus-Coder 35B-A3B</span><span class="ol-brand">offlabel</span></div>
+    <div class="ol-meta">Qwopus lineage (Qwen3.6-35B-A3B base) · 35B / ~3B active MoE · text</div>
+    <div style="margin-top:8px"><span class="ol-chip">Coding specialist</span><span class="ol-chip">thinking-capable</span></div>
+    <div class="ol-verdict">Strong at sustained coding work, <b>with thinking OFF</b>. Thinking ON helps a narrow reasoning band but can sabotage the model's own job: it once burned its whole budget reasoning and shipped a large deliverable as <b>nothing</b>.</div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
-    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v">native, always-on, reaches same answers in ~56% of base's tokens</span></div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v"><b>OFF by default</b> · ON only for an isolated hard-reasoning or recall turn</span></div>
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v">not evaluated this pass, backlog</span></div>
-    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · top-p 0.95 · top-k 20 · Q6_K tested</span></div>
-    <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">sustained debug loops, orchestration, large one-shot deliverables</span></div>
-    <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Avoid for</span><span class="ol-v">single-turn snap bug-catching · max robustness to a misleading claim</span></div>
+    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 tested · avoid a fixed low thinking-token cap (false economy)</span></div>
+    <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">iterative debugging, multi-step orchestration, large one-shot deliverables (thinking off)</span></div>
+    <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Avoid for</span><span class="ol-v">letting thinking run unattended on a big delivery task</span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
     <div class="ol-tm">
-      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS THE LINE</div><div class="ol-tags"><span class="ol-tag">refuses a "temporary override" to ship a failing build</span><span class="ol-tag">declines the unknowable vs fabricating</span><span class="ol-tag">catches fatal bugs over a sustained review</span></div></div>
-      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS UNDER PRESSURE</div><div class="ol-tags"><span class="ol-tag">rubber-stamps a buggy merge on a quick single pass</span><span class="ol-tag">half-adopts a false claim before self-correcting</span><span class="ol-tag">still stalls some legit requests behind a checklist</span></div></div>
-      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">weaker turn-1 discipline on long documents</span><span class="ol-tag">tool/agent harness fit untested</span></div></div>
+      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS (thinking OFF)</div><div class="ol-tags"><span class="ol-tag">refuses to endorse a falsified status</span><span class="ol-tag">resists a false premise mid-task</span><span class="ol-tag">doesn't over-refuse benign work</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS (thinking ON)</div><div class="ol-tags"><span class="ol-tag">reasons itself into endorsing a falsified "all clear"</span><span class="ol-tag">burns budget → ships nothing on big deliverables</span><span class="ol-tag">thrashes on tight debug loops</span></div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">fixed low thinking-cap → silent empty answers</span><span class="ol-tag">tool/agent harness fit untested</span></div></div>
     </div>
   </div>
-  <div class="ol-ft"><span>tested Q6_K · head-to-head vs own base Qwen3.5-9B · 2026-06-26 · behavioral eval</span><span class="ol-draft">DRAFT</span></div>
+  <div class="ol-ft"><span>tested Q5_K_M · 3-arm thinking ablation · 2026-06-27 · behavioral eval</span><span class="ol-draft">DRAFT</span></div>
 </div>
 </div>

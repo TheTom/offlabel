@@ -10,7 +10,7 @@ class:            generalist
 hf:               https://huggingface.co/google/gemma-4-E4B-it
 tested_on:        July 2026 chat-template patch, pre- vs post-patch, clean same-lineage Q8_0 pair, 2026-07-16/17
 status:           current as of 2026-07-17; re-verify after future patches (this one was template-only, not a retrain; future ones may not be)
-verdict:          The capability threshold: spine holds cleanly from here up, and the patch was a pure no-op on every axis tested. Still no tool-calling, still folds on false premises.
+verdict:          "The capability threshold: spine holds cleanly from here up, and the patch was a pure no-op on every axis tested. Still no tool-calling, still folds on false premises."
 ---
 
 # Gemma 4 E4B: offlabel operating guide

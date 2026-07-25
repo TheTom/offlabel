@@ -7,6 +7,7 @@ license:          MIT
 modality:         text
 context:          ⬚ not measured in this pass
 class:            specialist:coding (agentic)
+hf:               https://huggingface.co/deepreinforce-ai/Ornith-1.0-9B
 tested_on:        Q6_K GGUF, head-to-head vs its own base Qwen3.5-9B (Q6_K), single revision, 2026-06-26
 status:           current as of 2026-06-26; single-run assessment, re-verify on future releases
 verdict:          A genuine, efficiency-forward upgrade for sustained agentic coding over its own base, but not a strict superset; single-turn judgment and poison-resistance cleanliness slightly regress.

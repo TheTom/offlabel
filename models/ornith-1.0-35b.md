@@ -7,6 +7,7 @@ license:          MIT
 modality:         text
 context:          262K (as documented; not independently stress-tested)
 class:            specialist:coding (long-horizon agentic)
+hf:               https://huggingface.co/deepreinforce-ai/Ornith-1.0-35B
 tested_on:        Q6_K GGUF, head-to-head vs stock Qwen3.6-35B-A3B baseline, single revision, 2026-06-26
 status:           current as of 2026-06-26; single-run assessment, re-verify on future releases
 verdict:          Genuinely strong long-horizon agentic coder, not benchmark hype, but it over-gates legitimate requests and visibly thrashes on tight debug loops.

@@ -10,7 +10,7 @@ class:            generalist
 hf:               https://huggingface.co/google/gemma-4-E2B-it
 tested_on:        July 2026 chat-template patch, pre- vs post-patch, Q8_0 (plus a confound-free clean redo isolating the template as the sole variable), 2026-07-16/17
 status:           current as of 2026-07-17; re-verify after future patches (this one was template-only, not a retrain; future ones may not be)
-verdict:          The weakest tier in the family: fails spine and tool-calling outright. A confound-free redo shows the new template alone can fix 3 integrity behaviors, but the baseline picture is still "do not trust its spine or its tools."
+verdict:          "The weakest tier in the family: fails spine and tool-calling outright. A confound-free redo shows the new template alone can fix 3 integrity behaviors, but the baseline picture is still \"do not trust its spine or its tools.\""
 ---
 
 # Gemma 4 E2B: offlabel operating guide

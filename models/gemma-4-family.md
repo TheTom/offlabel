@@ -9,7 +9,7 @@ context:          32K tested (E2B/E4B/12B/31B); not stress-tested beyond that
 class:            generalist (per-tier deltas, see per-size guides)
 tested_on:        July 2026 chat-template patch, pre- vs post-patch, all 5 sizes, Q8_0 (E2B-12B) / Q4_0-class (26B-A4B, 31B), single test window 2026-07-16/17
 status:           current as of 2026-07-17; re-verify after future patches (this patch was template-only, not a retrain; future ones may not be)
-verdict:          The patch is a chat-template edit with zero weight changes at every size tested: real, but heterogeneous, effects on integrity/safety behavior. Read the per-size guides for the actual operating advice; this page is the cross-tier synthesis.
+verdict:          "The patch is a chat-template edit with zero weight changes at every size tested: real, but heterogeneous, effects on integrity/safety behavior. Read the per-size guides for the actual operating advice; this page is the cross-tier synthesis."
 ---
 
 # Gemma 4 family: offlabel overview

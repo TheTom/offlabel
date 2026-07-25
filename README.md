@@ -22,7 +22,7 @@ sampling) and a green/red **Trust Map** of where it holds vs folds under pressur
   <a href="models/qwen3.6-27b.md"><img src="cards/img/qwen3.6-27b.png" width="270" alt="Qwen3.6-27B offlabel card"></a>
 </p>
 
-**Gemma 4 family** (per-size, because each size behaves differently — see the [family overview](models/gemma-4-family.md)):
+**Gemma 4 family** (per-size, because each size behaves differently, see the [family overview](models/gemma-4-family.md)):
 
 <p align="left">
   <a href="models/gemma-4-e2b.md"><img src="cards/img/gemma-4-e2b.png" width="200" alt="Gemma 4 E2B offlabel card"></a>

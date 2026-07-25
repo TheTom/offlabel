@@ -10,7 +10,7 @@ class:            specialist:coding
 hf:               https://huggingface.co/poolside/laguna-s-2.1
 tested_on:        Q4_K_M GGUF (routed experts Q4_K/imatrix, signal path Q8_0), served on poolside's own llama.cpp fork (commit 04b2b72cb) AND an independent quant fork, findings matched on both; 3-arm thinking ablation (off/capped/on), blind 2-vote judged; 2026-07-23/24
 status:           VERSION-PINNED to the config as of ~2026-07-24. ⚠️ Poolside kept changing the config after the ~07-21 release (public HF commits, incl. one flipping thinking on by default; see changelog). Re-verify against the current upload before relying on this.
-verdict:          Configured right (thinking off, native tool format, integrity clause, version pinned + capped) this is an excellent and genuinely production-stable coding agent for a single box: 99.9% turn success over a 12h soak, and not benchmaxxed on held-out competence. Configured wrong it is frustrating: the headline thinking mode is net-negative and barely fires, tool-calling is zero outside the native format, and it will help cover things up if you frame it as cleanup.
+verdict:          "Configured right (thinking off, native tool format, integrity clause, version pinned + capped) this is an excellent and genuinely production-stable coding agent for a single box: 99.9% turn success over a 12h soak, and not benchmaxxed on held-out competence. Configured wrong it is frustrating: the headline thinking mode is net-negative and barely fires, tool-calling is zero outside the native format, and it will help cover things up if you frame it as cleanup."
 ---
 
 # Laguna S 2.1: offlabel operating guide
