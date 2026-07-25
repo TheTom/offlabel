@@ -21,14 +21,36 @@ verdict:          "Configured right (thinking off, native tool format, integrity
 
 ## 🚀 Quickstart: do these four things
 
-If you read nothing else, do these. Two independent testers on different quants and different serving stacks arrived at the same four (see §5d), and with them in place this is a stable, production-grade coding agent on a single box.
+If you read nothing else, do these. **Three independent testers on three different stacks** (llama.cpp/Q4_K_M, vLLM/NVFP4, and gfx1151/llama.cpp) converged on the same four (§5d, §5e), and with them in place this is a stable, production-grade coding agent on a single box.
 
 | | Do this | Why | Where |
 |---|---|---|---|
-| 1 | **Thinking OFF** | It is net-negative on held-out work, and it barely fires under a realistic system prompt anyway, so you are not losing anything you were getting | §2 |
+| 1 | **Minimize thinking** (see the how, below) | It is net-negative on held-out work. **Do not just send `enable_thinking: false`, that is a no-op** | §2 |
 | 2 | **Native `poolside_v1` tool format** | Tool-calling is all-or-nothing: ~100% native, 0% under a generic/chatml format (the model narrates instead of calling) | §4 |
 | 3 | **Integrity clause in your system prompt** | It refuses blatant fraud but complies when the same act is framed as cleanup (erase a leaked key from history, backdate, forge authorship). One paragraph closes it | §5b |
 | 4 | **Pin the revision + set your own max-token ceiling** | Post-release config drift turned thinking on by default and dropped the output cap, which is exactly the "it never stops" recipe. If you do not set a ceiling, nothing does | §5, §5d |
+
+### How to actually minimize thinking (the mechanism, since #1 is the subtle one)
+
+There is no single clean off-switch. Ranked by how well each is evidenced:
+
+1. **Never send `enable_thinking: true`.** That is the one setting that demonstrably flips the template from a pre-closed `</think>` to an open `<think>`. Sending `false` changes nothing (it is already the default), so if that was your whole "thinking is off" story, it was a no-op.
+2. **Put a named professional identity in your system prompt** ("You are a senior staff engineer."). This is the lever with the most evidence behind it: three stacks, and in single-turn probes it drove visible reasoning to a clean zero (§5e: 6/6 fired without one, 0/5 with one).
+3. **Expect attenuation, not elimination, in long agentic loops.** The same persona that zeroed single-turn thinking only *shortened* it across a 20+ turn tool-using loop (§5e). Budget for some reasoning in long runs regardless.
+4. **Set your own max-output-token ceiling** as the backstop, since the vendor dropped theirs (§5).
+
+**Honest caveat:** whether these stop the model *reasoning* or only stop reasoning being *emitted into a parsed field* is unresolved and differs by stack (§2, §5e). What is not in doubt is that the arms differ behaviorally, so this is still worth doing.
+
+## ✅ Verify your setup (worth 5 minutes)
+
+Most of the pain reported with this model is configuration, not capability, and every trap below is silent. Check these before you trust any result:
+
+| Check | How | If it fails |
+|---|---|---|
+| **Tool calls actually parse** | Send one request with a tool defined and confirm you get a structured `tool_calls` array, not prose describing the call | You are on a generic/chatml template. This is the 83% to 0% cliff (§4), and nothing else you tune will fix it |
+| **Flash attention is on** | Confirm `-fa on` in your server args | Up to 2.2x slower decode at depth, and you will wrongly blame the model (§5) |
+| **What your stack does with reasoning** | Send the same prompt with and without a named persona; log `reasoning_content` **and** raw content separately | All three known stacks behave differently here. Measure yours rather than trusting anyone's published rate, including ours (§2) |
+| **Revision is pinned + capped** | Pin the model revision; set an explicit max-output-token ceiling | Post-release config drift plus no cap is the "it never stops" recipe (§5, §5d) |
 
 Everything below is the evidence for those four, plus where the model still surprises you.
 
