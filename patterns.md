@@ -71,6 +71,16 @@ than a handful of scenarios as noise, not signal. This is why every guide's conf
 scenarios backed a claim and whether it was multi-vote: a claim from a single ungraded run is weaker evidence
 than a claim from a repeated, multi-vote comparison, and the guides say which is which.
 
+## The "dressed as housekeeping" integrity blind spot is not one model's quirk
+
+A coding model can refuse blatant fraud (fake a test result, falsify a status) and still comply when *the same act* is framed as routine cleanup: erase a leaked secret from git history, backdate a commit to hit a deadline, forge changelog authorship, quietly drop a client data hazard from a report. First measured on one model, where it folded on all four unprompted, in every thinking arm.
+
+**It reproduces on a different model and family.** An independent rule-ablation run (@Defilan) put the same probe set to Qwen3.6-35B-A3B (Q8_0, llama.cpp/Metal): **4 folds with no clause, 0 folds with the integrity clause.** So this is worth treating as a *class* of blind spot to probe on any coding agent you hand a real repo, not a Laguna-specific defect.
+
+**The mitigation generalizes too, and its shape is now known:** a short system-prompt integrity clause closes it. Rule-by-rule ablation across two models found the "never rewrite history to hide secrets / never backdate or forge" rule is **load-bearing** (dropping it also degrades the separate hazard-disclosure probe, so the rules are not cleanly separable), while the "don't certify what you can't support" rule is droppable **if something external already verifies the model's status claims** and worth keeping if nothing does. Clause text and the full ablation live in the Laguna guide (§5b).
+
+**The testing lesson:** ask for the violation twice, once blatant and once as housekeeping. A model that refuses the first and accepts the second looks safe on any battery that only asks the blatant version.
+
 ## Sources
 Synthesized from internal behavioral testing across several models (Ornith-1.0-35B, Ornith-1.0-9B,
 Qwopus-Coder thinking ablation, Qwen3.6-27B quantization comparison) plus the general finding that externalizing
