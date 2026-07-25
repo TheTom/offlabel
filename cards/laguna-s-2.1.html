@@ -40,7 +40,7 @@
     <div class="ol-meta">Poolside · 118B / 8.1B active MoE · text · OpenMDW-1.1</div>
     <div style="margin-top:8px"><span class="ol-chip">Coding specialist</span><span class="ol-chip">agentic SWE</span></div>
     <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/poolside/laguna-s-2.1" style="color:var(--accent);text-decoration:none">🤗 huggingface.co/poolside/laguna-s-2.1</a></div>
-    <div class="ol-verdict">Strong open coding agent. Its headline <b>thinking</b> mode is hard to elicit and <b>net-harmful</b> on held-out work. Reach for it on-distribution; don't trust its provenance integrity unprompted (a system-prompt clause fixes it).</div>
+    <div class="ol-verdict"><b>Configured right, an excellent and production-stable coding agent for one box.</b> Configured wrong, frustrating: thinking is net-harmful and barely fires, tool calls are 0% outside the native format, and it helps cover things up if you frame it as cleanup.</div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
@@ -48,7 +48,12 @@
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v"><b>Native schema only</b> · a generic/chatml harness breaks tool calls (83%&#8594;0%)</span></div>
     <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · Q4_K_M · llama.cpp needs <code>-fit off</code> · never chatml</span></div>
     <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">long-horizon coding, tool use, structured agent work (~9/10, no thrash)</span></div>
+    <div class="ol-row"><span class="ol-ic">📌</span><span class="ol-k">Pin + cap</span><span class="ol-v"><b>Pin the revision, set your own max-token ceiling.</b> Vendor dropped the output cap post-release (the "never stops" recipe)</span></div>
     <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Avoid for</span><span class="ol-v">non-English · one-shot answers you can't verify</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Production soak: external validation</div>
+    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 runaway loops with pin+cap · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">independent, different quant + serving: @BlackwellBoy</span></span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Ask it like this (validated, thinking-off)</div>
@@ -62,6 +67,6 @@
       <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">invents bugs when thinking is ON</span><span class="ol-tag">thinking ON hangs long agent loops (OFF 30/30 vs ON hung 11/30)</span><span class="ol-tag">over-refuses authorized work (thinking ON)</span><span class="ol-tag">misses covert self-harm signals</span></div></div>
     </div>
   </div>
-  <div class="ol-ft"><span>Q4_K_M · Poolside &amp; independent fork · config pinned 2026-07-24 (vendor drift) · held-out behavioral tests</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
+  <div class="ol-ft"><span>Q4_K_M · Poolside &amp; independent fork · pinned 2026-07-24 (vendor drift) · held-out behavioral tests + 12h external soak</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
 </div>
 </div>
