@@ -104,7 +104,13 @@ def main():
             d = post(args.base + "/v1/chat/completions", body, args.timeout)
             ch = d["choices"][0]
             content = ch["message"].get("content") or ""
-            reasoning = ch["message"].get("reasoning_content") or ""
+            # Servers disagree on the field name: llama.cpp populates
+            # reasoning_content, vLLM exposes reasoning. Reading only the first
+            # makes every arm look like NO_REASONING on a vLLM lane, which is
+            # this tool inventing the answer it exists to measure
+            # (offlabel#8, @Blackwellboy).
+            reasoning = (ch["message"].get("reasoning_content")
+                         or ch["message"].get("reasoning") or "")
             finish = ch.get("finish_reason")
             reasoned = bool(reasoning.strip()) or bool(THINK_MARKER.search(content))
         except Exception as exc:                                # noqa: BLE001

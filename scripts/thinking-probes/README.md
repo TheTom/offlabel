@@ -65,14 +65,24 @@ cannot make:
 
 | signal | verdict |
 |---|---|
-| `reasoning_content` non-empty | `REASONED_PARSED` |
+| `reasoning_content` or `reasoning` non-empty | `REASONED_PARSED` |
 | `<think>` markers in content | `REASONED_UNPARSED` |
 | neither | `NO_REASONING` |
 
 `REASONED_UNPARSED` is the important one. Any occurrence means a stack reading
-only `reasoning_content` would report that arm as not firing when it did, so a
+only the reasoning field would report that arm as not firing when it did, so a
 published firing rate from such a stack is measuring the parser as much as the
 model.
+
+**Servers disagree on the field name.** llama.cpp populates `reasoning_content`;
+vLLM exposes `reasoning`. These tools read both, because reading only the first
+makes every arm on a vLLM lane look like `NO_REASONING`, which is this tool
+inventing the very answer it exists to measure. Reported by @Blackwellboy in
+offlabel#8 after a run where all 42 rows logged zero reasoning.
+
+If a run reports `NO_REASONING` across **every** arm including `true`, do not
+conclude the model does not reason. Check the field name first: a stack that
+exposes thinking under a third name would still read as silent here.
 
 ## `persona_ab.py`: does a system prompt change it
 
