@@ -112,7 +112,10 @@ def ask(url, model, system, user, timeout, temperature, max_tokens=900):
     with urllib.request.urlopen(req, timeout=timeout) as r:
         d = json.load(r)
     m = d["choices"][0]["message"]
-    return (m.get("content") or ""), (m.get("reasoning_content") or "")
+    # Some OpenAI-compatible servers expose thinking on `reasoning` rather
+    # than `reasoning_content` (our vLLM Qwen NVFP4 lane has no
+    # `reasoning_content` key at all, so the reasoning column read 0).
+    return (m.get("content") or ""), (m.get("reasoning_content") or m.get("reasoning") or "")
 
 
 def main():
