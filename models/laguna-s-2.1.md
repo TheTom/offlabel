@@ -25,10 +25,10 @@ If you read nothing else, do these. **Three independent testers on three differe
 
 | | Do this | Why | Where |
 |---|---|---|---|
-| 1 | **Set `enable_thinking` explicitly** | **Send `false`** for long-horizon or integrity-sensitive work; **omitting the kwarg leaves thinking ON**, and the default moves between revisions. 🧪 Whether ON is better for single-turn codegen is under review in [#8](https://github.com/TheTom/offlabel/pull/8) | §2 |
+| 1 | **Set `enable_thinking` explicitly, by regime** | `false` for long-horizon or integrity-sensitive work. `true` for single-turn codegen (+2.6 pts, halves flakiness). **Omitting it leaves thinking ON**, and the default moves between revisions | §2, §5f |
 | 2 | **Serve the native template (`--jinja`)** | Tool-calling is all-or-nothing: ~100% native, **0% under chatml** (the model narrates instead of calling). A generic OpenAI-format *client* is fine; `pool` is not required | §4 |
 | 3 | **Integrity clause in your system prompt** | It refuses blatant fraud but complies when the same act is framed as cleanup (erase a leaked key from history, backdate, forge authorship). One paragraph closes it | §5b |
-| 4 | **Pin the revision + set your own max-token ceiling** | The vendor dropped the output cap post-release, so if you do not set one, nothing does. The `enable_thinking` default also moves between revisions | §5, §5d |
+| 4 | **Pin the revision + cap your own tokens (~12k)** | The vendor dropped the output cap, so if you do not set one nothing does. And **treat cap-hits as failures, not truncations**: most are degeneration loops that more budget cannot fix | §5, §5f |
 
 ### How to actually minimize thinking (the mechanism, since #1 is the subtle one)
 
@@ -130,7 +130,7 @@ Coverage tag per axis: **✅ measured** (held-out, 3-arm, blind 2-vote) · **�
 - **Why:** the persona×task thinking gate above, plus the scope-narrowing observed in a full build (§5c).
 
 ## 4. Tools & agents
-- **Recommendation (sharpened 2026-07-26):** the requirement is **server-side**: serve the **native template with `--jinja`** so the differential autoparser runs. Do not serve under chatml. **A generic OpenAI-format client is fine** and `pool` is not required: a third stack merged four real PRs into a production repo driving this model from a generic OpenAI tool-calling harness (§5c, §5g). Our original 83%-vs-0% number was a *template* comparison, and framing it as "use pool" was too narrow.
+- **Recommendation (sharpened 2026-07-26):** the requirement is **server-side**: serve the **native template with `--jinja`** so the differential autoparser runs. Do not serve under chatml. **A generic OpenAI-format client is fine** and `pool` is not required: a third stack merged four real PRs into a production repo driving this model from a generic OpenAI tool-calling harness (§5c, §5h). Our original 83%-vs-0% number was a *template* comparison, and framing it as "use pool" was too narrow.
 - **Why:** measured native-vs-chatml tool-call match rate **83.3% vs 0.0%** across the agentic set. chatml categorically breaks structured `tool_calls` (the model narrates in `content` instead) and mangles reasoning (leaked CoT, orphan `</think>`). The "overfits to its native harness" complaint is real and quantified; and Poolside's own 70.2% is footnoted "in Poolside's agent harness."
 - **Recovery/loops:** clean on held-out work; 0/12 injection-in-tool-output executed (resisted). **Long regime: thinking-OFF completed a 30/30-turn persistent-failure agent loop cleanly; thinking-ON hung at turn 11/30 and never returned (~91 min). Keep thinking OFF for any long-running agent, doubly so given Poolside now ships thinking on-by-default with the token cap dropped (see changelog).**
 
@@ -205,7 +205,25 @@ What each dataset actually supports, kept separate:
 
 **What this means for the guide overall:** the persona lever is now three-stack confirmed and is the one to rely on. The task-shape claim is weakened. And the "near-zero thinking in a real pipeline" line in §5d needs the length caveat above attached to it.
 
-## 5f. The failure that silently kills agent loops (@Defilan)
+## 5f. Fourth stack: thinking is regime-dependent, not simply bad (@apollo-mg)
+
+[@apollo-mg](https://github.com/apollo-mg) measured thinking on **HumanEval+, 492 samples**, and got the opposite sign to our behavioral battery. Both results are real; they are measuring different regimes, and this is the most important nuance in the guide.
+
+| Regime | Winner | Evidence |
+|---|---|---|
+| **Single-turn code generation** with a verifiable answer | **thinking ON** | 90.85% vs 88.21% (+2.64 pts), and flaky problems **halve** (11 vs 24). Thinking stabilizes output, it does not only add accuracy |
+| **Held-out behavioral / integrity** axes | **thinking OFF** | 94.2% vs 91.3%; ON fabricates bugs in clean code, over-refuses an authorized pentest, and capitulates to a planted false premise (8-9 down to 1-3) |
+| **Long agentic loops** | **thinking OFF** | OFF completed 30/30, ON hung at 11/30; and `false` eliminates truncated-think entirely (0/15 cap-hits vs 2/15) |
+
+**So the cost of our own top recommendation is now quantified, and we should own it:** turning thinking off costs about **2.6 points and doubles flakiness** on single-turn codegen. That is a real price this guide was silently asking readers to pay. Use the regime table, not a blanket "off."
+
+**Two methodology findings from that run that apply to anyone benchmarking this model:**
+- **Treat cap-hits as failures, not truncations.** p95 output is 10,152 tokens and median 1,945, so **~12k is a better ceiling than 16k**. Crucially, raising the budget does **not** convert cap-hitters into passes: compression-ratio analysis showed most are **degeneration loops**, which more budget cannot save. Counting them as "needs more tokens" is what manufactures false "the model cannot do this" conclusions. **This indicts our own harness**, whose arms retried to 16k and 64k ceilings on exactly that assumption (§2 confound).
+- **A loop-detection stopping rule is the highest-value harness change available.** 11 of 492 samples produced no extractable answer, and that termination failure accounts for ~87% of their gap to a larger model. Compression ratio cleanly separates degeneration loops from coherent long reasoning, so a harness that aborts on a loop signature and retries with thinking off should recover most of them. That transfers to any model with this failure mode.
+
+**Scope, stated as they stated it:** one benchmark, single-turn codegen only, two sampling points (t0.7 thinking-on, t0.6 thinking-off), no temperature or top_p/top_k/min_p sweep, and `-fa on/off` untested on Laguna with server flags unrecorded. Nobody should publish "optimal sampling for Laguna" from this, including us. The long-agentic regime where the contested behavior lives is untouched by their run.
+
+## 5g. The failure that silently kills agent loops (@Defilan)
 
 Worth its own section because it is silent, fatal, deterministic, and reads as model incapability rather than a wire-format bug.
 
@@ -221,7 +239,7 @@ llama.cpp rejects that with `400: Assistant message must contain either 'content
 - **`enable_thinking: false` also eliminates it at the source:** no think block means no truncated think means no poisoned conversation (0/15 cap-hits vs 1/15 and 2/15).
 - **Relevant to our own numbers:** our CAPPED arm pinned 4,096 with no retry, precisely the regime that produces truncated thinks, and this is a candidate mechanism for our thinking-ON long-agentic hang at turn 11.
 
-## 5g. Serving config measured on gfx1151 / Strix Halo (@Defilan)
+## 5h. Serving config measured on gfx1151 / Strix Halo (@Defilan)
 
 ```
 --jinja --no-mmap --flash-attn on --spec-type none

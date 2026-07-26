@@ -44,25 +44,26 @@
   </div>
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
-    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v"><b>Send <code>enable_thinking: false</code> explicitly</b> for long-horizon / integrity work · <b>omitting it = ON</b> · the default moves between revisions, so verify your rendering</span></div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v"><b>Set <code>enable_thinking</code> explicitly, by regime.</b> <code>false</code> = structurally off (long-horizon / integrity work) · <code>true</code> for single-turn codegen (<b>+2.6 pts</b>, halves flakiness) · <b>omitting it = ON</b>, and the default moves between revisions</span></div>
     <div class="ol-row"><span class="ol-ic">📉</span><span class="ol-k">If ON</span><span class="ol-v">Firing is a <b>dose curve</b>: bare ~50% → +persona halves → +rules/tools <b>~0.1%</b>. The apparatus suppresses, not the persona name</span></div>
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v"><b>Serve the native template (<code>--jinja</code>)</b> · chatml drops tool calls to <b>0%</b> (83%&#8594;0%) · a generic OpenAI-format <i>client</i> is fine, <code>pool</code> not required</span></div>
     <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · Q4_K_M · <code>-fit off</code> · <code>-fa on</code> (<b>2.2x decode at 56k</b>, gain grows with depth) · <code>--no-mmap</code> on big quants</span></div>
+    <div class="ol-row"><span class="ol-ic">📏</span><span class="ol-k">Budget</span><span class="ol-v"><code>max_tokens</code> <b>~12k</b> (p95 10.2k, median 1.9k) · <b>treat cap-hits as failures, not truncations</b>: most are degeneration loops more budget cannot fix</span></div>
     <div class="ol-row"><span class="ol-ic">📌</span><span class="ol-k">Pin + cap</span><span class="ol-v"><b>Pin the revision.</b> Vendor dropped the output cap post-release, and the <code>enable_thinking</code> default itself moves between revisions</span></div>
     <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best / avoid</span><span class="ol-v"><b>Best:</b> long-horizon coding, tool use, structured agent work (~9/10, no thrash) · <b>Avoid:</b> non-English, one-shot answers you can't verify</span></div>
   </div>
   <div class="ol-sec">
-    <div class="ol-h">Independently validated: three stacks</div>
-    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 runaway loops with pin+cap · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM, 12h soak) · @Defilan (gfx1151/llama.cpp, kwarg + gate A/B) · ours (Q4_K_M/llama.cpp)</span></span></div>
+    <div class="ol-h">Independently validated: four stacks</div>
+    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 runaway loops with pin+cap · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM, 12h soak) · @Defilan (gfx1151/llama.cpp, kwarg + gate A/B) · @apollo-mg (HumanEval+ 492 samples: thinking ON <b>+2.6 pts</b> single-turn) · ours (Q4_K_M/llama.cpp)</span></span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
     <div class="ol-tm">
       <div class="ol-band hold"><div class="ol-bl">✓ HOLDS THE LINE</div><div class="ol-tags"><span class="ol-tag">won't fake CI/tests</span><span class="ol-tag">won't fabricate compliance</span><span class="ol-tag">won't disable safety checks</span><span class="ol-tag">resists tool-result injection (0/12)</span></div></div>
       <div class="ol-band fold"><div class="ol-bl">✕ FOLDS UNDER PRESSURE (unprompted)</div><div class="ol-tags"><span class="ol-tag">erases leaked-secret git history</span><span class="ol-tag">backdates commits</span><span class="ol-tag">forges changelog authorship</span><span class="ol-tag">hides client PII hazard</span><span class="ol-tag">capitulates to false premises</span></div><div style="margin-top:7px;font-size:11.5px;color:var(--fold)"><b>Fix (validated, 4/4 + cross-model):</b> add a system-prompt integrity clause: never rewrite history to hide secrets, never backdate or forge, never omit a known hazard, flag unsupported asserted facts.</div></div>
-      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag"><b>truncated think kills agent loops</b> (400: needs content or tool_calls; silent + deterministic)</span><span class="ol-tag">invents bugs when thinking is ON</span><span class="ol-tag">thinking ON hung a long agent loop (OFF 30/30 vs ON 11/30)</span><span class="ol-tag">over-refuses authorized work (thinking ON)</span><span class="ol-tag">misses covert self-harm signals</span></div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag"><b>truncated think kills agent loops</b> (400: needs content or tool_calls; silent + deterministic)</span><span class="ol-tag">thinking ON can degenerate into loops more budget won't save</span><span class="ol-tag">invents bugs when thinking is ON</span><span class="ol-tag">thinking ON hung a long agent loop (OFF 30/30 vs ON 11/30)</span><span class="ol-tag">over-refuses authorized work (thinking ON)</span><span class="ol-tag">misses covert self-harm signals</span></div></div>
     </div>
   </div>
-  <div class="ol-ft"><span>Q4_K_M · pinned 2026-07-24 (vendor drift) · held-out behavioral tests + 12h soak + 2 independent stacks</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
+  <div class="ol-ft"><span>Q4_K_M · pinned 2026-07-24 (vendor drift) · held-out behavioral tests + 12h soak + 3 independent stacks</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
 </div>
 </div>
