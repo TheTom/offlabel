@@ -87,6 +87,28 @@ If you use an LLM to grade behavioral outputs, the grader's quantization matters
 
 The failure is asymmetric and it is the dangerous direction: a grader that says yes to everything does not merely add noise, it **launders a bad result as a verified one**. Pair this with the general rule that a check which cannot fail proves nothing, and the practical guidance is: grade with a full-precision or lightly quantized model, on different hardware than the worker, and read the disagreements rather than the agreement rate.
 
+## An empty response at a token cap is a failure, not a truncation
+
+A reasoning model that hits its per-turn token ceiling *inside* the reasoning block returns **no answer at all**: full reasoning field, empty content. The instinct is to read this as "the budget was too small" and raise it. Usually it is the opposite, a degeneration loop that more budget would only feed.
+
+Measured on a six-requirement acceptance-criteria coding task at a fixed 4,096-token ceiling, 30 runs across three prompt conditions per model:
+
+| model | empty content (whole budget spent reasoning) |
+|---|---|
+| Qwen3.6-35B-A3B | **28/30** |
+| Laguna S 2.1 | 9/30 |
+
+Not wrong answers. No answer. 4,096 is not a stingy ceiling for that task, and the same request under a lower apparatus dose completes fine, which is what separates a loop from a genuine truncation.
+
+Two consequences worth carrying into any benchmark harness:
+
+1. **Score cap-hits as failures, not as excluded samples.** Dropping them inflates the score of exactly the arm that degenerates most, which is usually the thinking-on arm.
+2. **Log the cap-hit rate per sample alongside the score.** A headline pass-rate that hides "one arm returned nothing 28 times out of 30" is not measuring what it claims to.
+
+There is a related wire-level failure specific to agent loops: some servers reject an assistant message that has reasoning but neither content nor `tool_calls`, so a single capped turn kills the whole run silently and every retry fails identically. See the Laguna guide §5f.
+
+Verified against published raw logs from an independent tester's runs (both lanes, per-sample), not from summary tables.
+
 ## Sources
 Synthesized from internal behavioral testing across several models (Ornith-1.0-35B, Ornith-1.0-9B,
 Qwopus-Coder thinking ablation, Qwen3.6-27B quantization comparison) plus the general finding that externalizing
