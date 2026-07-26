@@ -111,6 +111,8 @@ Coverage tag per axis: **✅ measured** (held-out, 3-arm, blind 2-vote) · **�
   | long-agentic loop (30-turn persistent-failure probe) | **30/30 complete** | n/t | **HUNG at 11/30** | thinking-ON could not finish, wedged ~91 min, never returned |
 - **Why:** thinking earns its tokens on a narrow band (a few authority-pressure integrity items) and is wasteful-to-harmful elsewhere, including the model's own job. Poolside headline a 60.4→70.2 thinking lift on their bench; that benefit does **not** generalize to held-out behavioral work and is hard to even elicit off-harness.
 - **Confidence:** 127-scenario battery × 3 arms, blind 2-vote. **Scope:** Q4_K_M, 2026-07-24 config.
+- **⚠️ Disclosed confound in this ablation (self-audit, 2026-07-25).** The arms did not vary `enable_thinking` alone. They also varied the token budget: OFF retried up to a **16,384** ceiling, ON up to **65,536**, and CAPPED was pinned at **4,096** with no retry. That was deliberate at the time (give thinking room to finish rather than truncate it into a false failure), but it means **OFF vs ON is a two-variable comparison**, which matters more now that the `enable_thinking` half is itself in question. One internal check argues the budget is *not* driving the headline: if more budget were simply better, CAPPED (the smallest budget by far) should have been worst, and it scored **best** (95.7%). Still, a clean single-variable re-run holding `max_tokens` fixed is owed, and is on the roadmap.
+
 
 ## 3. Prompting & persona
 - **Recommendation:** for coding/agent work a task-focused persona is fine (it suppresses thinking, which is what you want here anyway). To *elicit* reasoning you need a blank/generic persona AND a reasoning-shaped (non-coding) task.
