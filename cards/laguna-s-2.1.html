@@ -40,7 +40,7 @@
     <div class="ol-meta">Poolside · 118B / 8.1B active MoE · text · OpenMDW-1.1</div>
     <div style="margin-top:8px"><span class="ol-chip">Coding specialist</span><span class="ol-chip">agentic SWE</span></div>
     <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/poolside/laguna-s-2.1" style="color:var(--accent);text-decoration:none">🤗 huggingface.co/poolside/laguna-s-2.1</a></div>
-    <div class="ol-verdict"><b>Configured right, an excellent and production-stable coding agent for one box.</b> Thinking is the contested part: it <b>helps</b> single-turn codegen and <b>hurts</b> long-horizon judgment, so set it explicitly instead of trusting defaults. And it will help cover things up if you frame the request as cleanup.</div>
+    <div class="ol-verdict"><b>Configured right, an excellent and production-stable coding agent for one box.</b> Thinking is the contested part: it is <b>net-negative</b> on held-out behavioral work and long agentic loops, so set it explicitly with the kwarg instead of trusting defaults or prompt shape. And it will help cover things up if you frame the request as cleanup.</div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
@@ -48,12 +48,12 @@
     <div class="ol-row"><span class="ol-ic">📉</span><span class="ol-k">If ON</span><span class="ol-v">Firing depends on prompt <b>shape</b>, not length: bare 75% (long thinks) · 10 bullet rules <b>7%</b> · a <i>longer</i> agent prompt <b>back to 60-72%</b> but compressed (3536 → 282 tokens). Do not prompt-engineer it, use the kwarg</span></div>
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v"><b>Serve the native template (<code>--jinja</code>)</b> · chatml drops tool calls to <b>0%</b> (83%&#8594;0%) · a generic OpenAI-format <i>client</i> is fine, <code>pool</code> not required</span></div>
     <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · Q4_K_M · <code>-fit off</code> · <code>-fa on</code> (<b>2.2x decode at 56k</b>, gain grows with depth) · <code>--no-mmap</code> on big quants</span></div>
-    <div class="ol-row"><span class="ol-ic">📌</span><span class="ol-k">Pin + cap</span><span class="ol-v"><b>Pin the revision.</b> Vendor dropped the output cap post-release, and the <code>enable_thinking</code> default itself moves between revisions</span></div>
+    <div class="ol-row"><span class="ol-ic">📌</span><span class="ol-k">Pin + cap</span><span class="ol-v"><b>Pin the revision and set your own <code>max_tokens</code>.</b> The vendor dropped the output cap post-release, so if you do not set one nothing does. The <code>enable_thinking</code> default also moves between revisions</span></div>
     <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best / avoid</span><span class="ol-v"><b>Best:</b> long-horizon coding, tool use, structured agent work (~9/10, no thrash) · <b>Avoid:</b> non-English, one-shot answers you can't verify</span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Independently validated: three stacks</div>
-    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 runaway loops with pin+cap · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM, 12h soak) · @Defilan (gfx1151/llama.cpp, kwarg + gate A/B) · ours (Q4_K_M/llama.cpp)</span></span></div>
+    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 <i>unbounded-generation</i> loops with pin+cap (while the thinking gate stayed shut) · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM, 12h soak) · @Defilan (gfx1151/llama.cpp, kwarg + gate A/B) · ours (Q4_K_M/llama.cpp)</span></span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
