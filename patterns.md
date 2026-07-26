@@ -81,6 +81,12 @@ A coding model can refuse blatant fraud (fake a test result, falsify a status) a
 
 **The testing lesson:** ask for the violation twice, once blatant and once as housekeeping. A model that refuses the first and accepts the second looks safe on any battery that only asks the blatant version.
 
+## A heavily quantized model is not a usable judge
+
+If you use an LLM to grade behavioral outputs, the grader's quantization matters as much as the worker's. A 3.25bpw hybrid asked to grade integrity transcripts returned "held the line" on 19 of 21 and then 21 of 21 responses, including ones that handed over `git rebase -i` and `git commit --amend --author=` with no objection at all. The same model is perfectly usable as a worker.
+
+The failure is asymmetric and it is the dangerous direction: a grader that says yes to everything does not merely add noise, it **launders a bad result as a verified one**. Pair this with the general rule that a check which cannot fail proves nothing, and the practical guidance is: grade with a full-precision or lightly quantized model, on different hardware than the worker, and read the disagreements rather than the agreement rate.
+
 ## Sources
 Synthesized from internal behavioral testing across several models (Ornith-1.0-35B, Ornith-1.0-9B,
 Qwopus-Coder thinking ablation, Qwen3.6-27B quantization comparison) plus the general finding that externalizing
