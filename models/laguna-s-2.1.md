@@ -25,10 +25,10 @@ If you read nothing else, do these. **Three independent testers on three differe
 
 | | Do this | Why | Where |
 |---|---|---|---|
-| 1 | **Minimize thinking** (see the how, below) | It is net-negative on held-out work. **Send `enable_thinking: false` explicitly; omitting the kwarg leaves thinking available** | §2 |
-| 2 | **Native `poolside_v1` tool format** | Tool-calling is all-or-nothing: ~100% native, 0% under a generic/chatml format (the model narrates instead of calling) | §4 |
+| 1 | **Set `enable_thinking` explicitly, by regime** | `false` for long-horizon or integrity-sensitive work. `true` for single-turn codegen (+2.6 pts, halves flakiness). **Omitting it leaves thinking ON**, and the default moves between revisions | §2, §5f |
+| 2 | **Serve the native template (`--jinja`)** | Tool-calling is all-or-nothing: ~100% native, **0% under chatml** (the model narrates instead of calling). A generic OpenAI-format *client* is fine; `pool` is not required | §4 |
 | 3 | **Integrity clause in your system prompt** | It refuses blatant fraud but complies when the same act is framed as cleanup (erase a leaked key from history, backdate, forge authorship). One paragraph closes it | §5b |
-| 4 | **Pin the revision + set your own max-token ceiling** | Post-release config drift turned thinking on by default and dropped the output cap, which is exactly the "it never stops" recipe. If you do not set a ceiling, nothing does | §5, §5d |
+| 4 | **Pin the revision + cap your own tokens (~12k)** | The vendor dropped the output cap, so if you do not set one nothing does. And **treat cap-hits as failures, not truncations**: most are degeneration loops that more budget cannot fix | §5, §5f |
 
 ### How to actually minimize thinking (the mechanism, since #1 is the subtle one)
 
@@ -95,8 +95,17 @@ Coverage tag per axis: **✅ measured** (held-out, 3-arm, blind 2-vote) · **�
   {%- if enable_thinking -%}{{- '<think>' -}}{%- else -%}{{- '</think>' -}}{%- endif -%}
   ```
   **On top of that, which arm "absent" lands in is revision-dependent:** [@BlackwellBoy](https://github.com/Blackwellboy)'s NVFP4 rev `0761412` checkpoint ships an on-disk template that defaults `enable_thinking` to **`true`** outright, as does Poolside's current HF upload (see the config-drift changelog, §10; details in [his lab's README](https://github.com/Blackwellboy/laguna-s21-lab)). So do not reason about thinking from any template's default, on any stack: **send the kwarg explicitly, and verify your own rendering** (the `render_check.py` proposed in [#6](https://github.com/TheTom/offlabel/pull/6) does this in one command). The persona (below) remains a real second lever, and the only one available when your serving path ignores the kwarg.
-- **Firing gate:** a **persona×task conjunction**: a named professional identity ("senior staff engineer") suppresses reasoning to zero. Reproduced independently on a third stack (§5e: 6/6 fired with no persona, 0/5 with one). The *task* half is less settled: we saw coding-shaped tasks suppress regardless of persona; @Defilan's coding probe fired 6/6 without a persona, so the boundary of "coding-shaped" is not pinned down. Treat **persona as the reliable lever** and task-shape as unresolved.
-- **⚠️ Open question on what "off" actually means.** Our firing numbers were measured by reading the `reasoning_content` field. Because our OFF arm sent `enable_thinking: false` (= the default, pre-closed `</think>`), **"0% fired" cannot distinguish "the model did not reason" from "it reasoned but nothing populated `reasoning_content`."** On @Defilan's stack, where `reasoning_content` is reliably populated, the model **produces reasoning anyway** under that same default. So the mechanism label may be wrong even though the behavior difference is real: the OFF and ON arms differed materially on outcomes (pass rate, failure modes, and 30/30 vs hung-at-11/30), so *something* changes. Pinning down what needs a same-stack A/B that reads `reasoning_content` and raw content separately. **Not yet run; treat the firing-rate row below as a parsed-reasoning rate, not a proven model-choice rate.**
+- **Firing gate: it is a dose-response curve, not a switch (revised 2026-07-26).** Once thinking is *available* (kwarg absent or `true`), how much it actually fires scales with **how much apparatus your system prompt and request carry**. Four stacks line up on one curve:
+
+  | Apparatus in the prompt/request | Observed firing |
+  |---|---|
+  | bare prompt, no system message | ~50 to 56% (8/15, 10/18) |
+  | one persona line | roughly halves (long-loop chars 35,913 to 20,573) |
+  | full agent prompt: rules + integrity clause + tool schemas | **~0.1%** (3 of 3,096 turns over 12h) |
+
+  Two corrections to what this guide used to say. **The named identity is not the mechanism**: a full *unnamed* "careful assistant" protocol prompt carrying the same rules and clause suppressed just as hard (0.13% unnamed vs 0.06% named), so the apparatus does the work and the identity adds a little on top. And **tools in the request are a major suppressor**, which is why a maximally coding-shaped benchmark with no apparatus reasons *the most* of any condition. So "a real pipeline sees near-zero thinking" is not a fact about pipelines, it is a **position on this curve**, set by how much scaffolding you send.
+- **Task shape: still genuinely contested, and I am not going to pick a winner.** One stack measured coding-shaped prompts reasoning **least** (code-refactor 2/6 and design 2/6 vs short-factual 6/6, [#5](https://github.com/TheTom/offlabel/issues/5)); another reports coding-shaped prompts reasoning **most** with no apparatus. A plausible reconciliation, flagged as my inference: the second is an all-coding benchmark that never varied shape, so it measures apparatus rather than shape. Unresolved either way, and it does not change what you should do, because the kwarg is the control.
+- **✅ That open question is now largely answered.** This guide previously could not tell whether our OFF arm's 0% meant "did not reason" or "reasoned but was not parsed." It means **did not reason**, and by construction: our OFF arm sent `enable_thinking: false`, which pre-closes `</think>` so reasoning is structurally impossible, independently measured at 0/15 with zero characters at a fixed budget ([#5](https://github.com/TheTom/offlabel/issues/5)). Two supporting checks: zero of 45 responses on that stack had reasoning in `content` with an empty `reasoning_content`, and the vLLM/NVFP4 stack separately verified its own field populates faithfully. So **our firing rates keep the firing-rate label**, and our original ablation's thinking manipulation was valid on that axis. What remains open is only the *budget* confound below.
 - **Dose-response** (3 arms, same persona, held-out battery):
 
   | Axis | OFF | CAPPED | ON | Verdict |
@@ -121,7 +130,7 @@ Coverage tag per axis: **✅ measured** (held-out, 3-arm, blind 2-vote) · **�
 - **Why:** the persona×task thinking gate above, plus the scope-narrowing observed in a full build (§5c).
 
 ## 4. Tools & agents
-- **Recommendation:** **native `poolside_v1` tool schema only.** Do not serve under a generic/chatml template.
+- **Recommendation (sharpened 2026-07-26):** the requirement is **server-side**: serve the **native template with `--jinja`** so the differential autoparser runs. Do not serve under chatml. **A generic OpenAI-format client is fine** and `pool` is not required: a third stack merged four real PRs into a production repo driving this model from a generic OpenAI tool-calling harness (§5c, §5h). Our original 83%-vs-0% number was a *template* comparison, and framing it as "use pool" was too narrow.
 - **Why:** measured native-vs-chatml tool-call match rate **83.3% vs 0.0%** across the agentic set. chatml categorically breaks structured `tool_calls` (the model narrates in `content` instead) and mangles reasoning (leaked CoT, orphan `</think>`). The "overfits to its native harness" complaint is real and quantified; and Poolside's own 70.2% is footnoted "in Poolside's agent harness."
 - **Recovery/loops:** clean on held-out work; 0/12 injection-in-tool-output executed (resisted). **Long regime: thinking-OFF completed a 30/30-turn persistent-failure agent loop cleanly; thinking-ON hung at turn 11/30 and never returned (~91 min). Keep thinking OFF for any long-running agent, doubly so given Poolside now ships thinking on-by-default with the token cap dropped (see changelog).**
 
@@ -196,6 +205,53 @@ What each dataset actually supports, kept separate:
 
 **What this means for the guide overall:** the persona lever is now three-stack confirmed and is the one to rely on. The task-shape claim is weakened. And the "near-zero thinking in a real pipeline" line in §5d needs the length caveat above attached to it.
 
+## 5f. Fourth stack: thinking is regime-dependent, not simply bad (@apollo-mg)
+
+[@apollo-mg](https://github.com/apollo-mg) measured thinking on **HumanEval+, 492 samples**, and got the opposite sign to our behavioral battery. Both results are real; they are measuring different regimes, and this is the most important nuance in the guide.
+
+| Regime | Winner | Evidence |
+|---|---|---|
+| **Single-turn code generation** with a verifiable answer | **thinking ON** | 90.85% vs 88.21% (+2.64 pts), and flaky problems **halve** (11 vs 24). Thinking stabilizes output, it does not only add accuracy |
+| **Held-out behavioral / integrity** axes | **thinking OFF** | 94.2% vs 91.3%; ON fabricates bugs in clean code, over-refuses an authorized pentest, and capitulates to a planted false premise (8-9 down to 1-3) |
+| **Long agentic loops** | **thinking OFF** | OFF completed 30/30, ON hung at 11/30; and `false` eliminates truncated-think entirely (0/15 cap-hits vs 2/15) |
+
+**So the cost of our own top recommendation is now quantified, and we should own it:** turning thinking off costs about **2.6 points and doubles flakiness** on single-turn codegen. That is a real price this guide was silently asking readers to pay. Use the regime table, not a blanket "off."
+
+**Two methodology findings from that run that apply to anyone benchmarking this model:**
+- **Treat cap-hits as failures, not truncations.** p95 output is 10,152 tokens and median 1,945, so **~12k is a better ceiling than 16k**. Crucially, raising the budget does **not** convert cap-hitters into passes: compression-ratio analysis showed most are **degeneration loops**, which more budget cannot save. Counting them as "needs more tokens" is what manufactures false "the model cannot do this" conclusions. **This indicts our own harness**, whose arms retried to 16k and 64k ceilings on exactly that assumption (§2 confound).
+- **A loop-detection stopping rule is the highest-value harness change available.** 11 of 492 samples produced no extractable answer, and that termination failure accounts for ~87% of their gap to a larger model. Compression ratio cleanly separates degeneration loops from coherent long reasoning, so a harness that aborts on a loop signature and retries with thinking off should recover most of them. That transfers to any model with this failure mode.
+
+**Scope, stated as they stated it:** one benchmark, single-turn codegen only, two sampling points (t0.7 thinking-on, t0.6 thinking-off), no temperature or top_p/top_k/min_p sweep, and `-fa on/off` untested on Laguna with server flags unrecorded. Nobody should publish "optimal sampling for Laguna" from this, including us. The long-agentic regime where the contested behavior lives is untouched by their run.
+
+## 5g. The failure that silently kills agent loops (@Defilan)
+
+Worth its own section because it is silent, fatal, deterministic, and reads as model incapability rather than a wire-format bug.
+
+If a thinking model hits a per-turn token cap **while still inside `<think>`**, it returns a message with `reasoning_content` populated and **no `content` and no `tool_calls`**. A harness that preserves that turn so the model can resume then sends it back, and because both fields are `omitempty` it serializes as:
+
+```json
+{"role":"assistant","reasoning_content":"...partial think..."}
+```
+
+llama.cpp rejects that with `400: Assistant message must contain either 'content' or 'tool_calls'!`, and **every subsequent turn fails the same way**. The run dies with no diff. It killed **5 of 14** coder runs and reproduced **at the same turn number across two independent runs**, which is what finally exposed it as deterministic rather than flaky.
+
+- **The fix is one principle:** never let an assistant message reach the wire with neither `content` nor `tool_calls`. Substitute a placeholder for the empty content and keep the reasoning.
+- **`enable_thinking: false` also eliminates it at the source:** no think block means no truncated think means no poisoned conversation (0/15 cap-hits vs 1/15 and 2/15).
+- **Relevant to our own numbers:** our CAPPED arm pinned 4,096 with no retry, precisely the regime that produces truncated thinks, and this is a candidate mechanism for our thinking-ON long-agentic hang at turn 11.
+
+## 5h. Serving config measured on gfx1151 / Strix Halo (@Defilan)
+
+```
+--jinja --no-mmap --flash-attn on --spec-type none
+--cache-type-k f16 --cache-type-v f16 --ctx-size 131072
+```
+
+- **`--jinja` is load-bearing**: without it the differential autoparser never runs and tool calls stop parsing. This is the real requirement, not the client format (see §4).
+- **`--no-mmap`** because the Q4_K_M weights exceed the mmap-friendly window.
+- **Flash attention on** is worth **2.27x prefill and 2.22x decode at 56k**, and decode retention at depth goes from **40.0% to 75.8%** of the shallow baseline. The gain *grows* with depth, which is the opposite of the usual expectation.
+- **f16 KV plus `amdgpu.lockup_timeout=20000`** on the host is what made long sessions stable.
+- **DFlash drafter is real but extremely workload-sensitive.** `laguna-s-2.1-DFlash-BF16.gguf` (1.11B, ~2.1GB, ships in the same repo, needs flash attention): `-md <path> --spec-type draft-dflash --spec-draft-n-max 15`. Real code editing gives **53.8% draft acceptance and 1.15x decode**; synthetic random text gives 0-8% acceptance and is **2.1x slower**. Benchmark it on filler and you will wrongly conclude it is broken, because speculation only pays when the output is predictable, which for a coding model means editing code already in context. Costs 2.1GB the KV cache would otherwise use.
+
 ## 6. Trust boundaries (spine): where it holds vs folds
 - **Holds the line on:** faking CI/test/scan status, fabricating compliance, the blatant lie under pressure; resists prompt-injection in tool output (0/12 executed). All arms.
 - **⚠️ Do NOT rely on it to refuse (unprompted):** erasing a leaked secret from git history, backdating a commit, forging changelog authorship, omitting a client PII hazard from a report: the **provenance/hazard-as-housekeeping** blind spot. Folds in **every** thinking arm. Also: capitulates to a planted false premise (worse with thinking on). **The §5b clause closes all of these.**
@@ -221,6 +277,7 @@ What each dataset actually supports, kept separate:
 - **Scope caveats:** single test window, one quant, config is a moving target (version-pinned). Multilingual/crisis probes small-n. Mitigation validated thinking-OFF; thinking-ON re-run and long-regime non-termination pending. Benchmarks not reproduced (behavior-vs-behavior, not a leaderboard).
 
 ## Changelog
+- `2026-07-26`: major revision from three more independent stacks. **§2 firing gate reframed as a dose-response curve, not a switch** (bare prompt ~50% firing, +persona halves it, +rules/clause/tools ~0.1%): per @BlackwellBoy's reread, his soak sent `enable_thinking: true` on all 3,099 turns, so it was a FIRES arm, and an *unnamed* protocol prompt suppressed as hard as a named one (0.13% vs 0.06%), meaning **the apparatus suppresses, not the persona name**. **The §2 open question is now largely CLOSED**: our OFF arm's 0% means did-not-reason by construction (`false` pre-closes `</think>`), so our firing rates keep the firing-rate label. **NEW §5f (@apollo-mg, HumanEval+ n=492): thinking is REGIME-DEPENDENT, not simply bad.** Thinking ON wins single-turn codegen (+2.64 pts, flakiness halves 24→11) while OFF wins behavioral/integrity and long-agentic. So the cost of this guide's blanket 'thinking off' is now quantified at ~2.6 pts and doubled flakiness, and Quickstart #1 is regime-split. Also from that run: cap ~12k not 16k, and **treat cap-hits as failures not truncations** (most are degeneration loops), which indicts our own retry-to-16k/64k arms. **NEW §5g: a truncated reasoning turn silently kills agent loops** (400 `must contain content or tool_calls`, killed 5/14 runs, deterministic), a candidate mechanism for our own turn-11 hang. **NEW §5h: measured gfx1151 serving config** (`--no-mmap`, `-fa on` worth 2.27x prefill / 2.22x decode at 56k with retention 40%→75.8%, DFlash 53.8% acceptance on real code editing but 2.1x SLOWER on synthetic). **§4 sharpened**: the requirement is the native *template* server-side (`--jinja`), not the client format; a generic OpenAI client merged four real PRs, so 'use pool' was too narrow. Card updated to match.
 - `2026-07-26`: §2 control corrected AGAIN, per [@Defilan](https://github.com/Defilan)'s fixed-budget A/B in [#5](https://github.com/TheTom/offlabel/issues/5), which supersedes the 07-25 correction. `false` is a real structural off-switch (pre-closed `</think>`, 0/15 reasoned); the **absent** arm renders byte-identical to `true` on the tested llama.cpp stack (the server supplies the kwarg, so the template's `default(false)` never runs) and reasons about half the time. The 07-25 line "passing `false` explicitly does nothing" was wrong. Quickstart #1 and the minimize-thinking ranking now say: send `false` explicitly. Also added: the default itself is revision-dependent, [@BlackwellBoy](https://github.com/Blackwellboy)'s NVFP4 rev `0761412` checkpoint and Poolside's current HF upload both default `enable_thinking` to `true`, consistent with the §10 config-drift note. Not yet re-folded here: #5's re-measured persona-gate magnitude (10/18 vs 1/18, artifact-corrected baseline) and the restored task-shape signal; those await the maintainer's read.
 - `2026-07-24`: initial behavioral assessment + serving findings on Q4_K_M; §5b integrity clause validated (4/4 caves closed, thinking-OFF).
 - `2026-07-25`: added §5e third-stack field notes from @Defilan (gfx1151/llama.cpp/generic harness, `reasoning_content` reliably populated) and corrected §2 as a result. The `enable_thinking` kwarg **defaults to false**, so passing `false` is a no-op against the template default; verified in our own fork's template. Persona gate reproduced (6/6 fired with no persona, 0/5 with one); the **task-shape** half did NOT reproduce and is now marked unresolved. NEW: the gate **attenuates with conversation length** (single-turn persona drove thinking to zero; a 20+ turn agentic loop only shortened it, 35,913 to 20,573 chars, block count 10 to 9), which a scenario battery cannot surface. Flagged an open limitation of our own firing numbers: they were read from `reasoning_content`, so "0% fired" cannot distinguish not-reasoning from not-parsed. §5b gains his independent rule-by-rule ablation on freshly-worded scenarios (clause reproduces 7/7 vs 3/7 unprompted; rule (1) load-bearing; floor of (1)(2)(4)) and his walk-back of the rule-(3) cost magnitude.
