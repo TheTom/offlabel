@@ -45,7 +45,8 @@
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
     <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v"><b>Send <code>enable_thinking: false</code> explicitly</b> for long-horizon / integrity work · <b>omitting it = ON</b> · the default moves between revisions, so verify your rendering</span></div>
-    <div class="ol-row"><span class="ol-ic">📉</span><span class="ol-k">If ON</span><span class="ol-v">Firing depends on prompt <b>shape</b>, not length: bare 75% (long thinks) · 10 bullet rules <b>7%</b> · a <i>longer</i> agent prompt <b>back to 60-72%</b> but compressed (3536 → 282 tokens). Do not prompt-engineer it, use the kwarg</span></div>
+    <div class="ol-row"><span class="ol-ic">📉</span><span class="ol-k">If ON</span><span class="ol-v"><b>Two axes that move separately.</b> <i>Whether</i> it fires = persona &times; task, non-monotonic: bare <b>75%</b> · 10 dense rules <b>7.5%</b> · a <i>longer</i> agent prompt back to <b>60%</b> · +tool schemas <b>72%</b>. <i>How long</i> it thinks collapses anyway: <b>3536 &#8594; 745 &#8594; 282</b> tokens. Tools cut length 62% and <b>raise</b> firing. Do not prompt-engineer it, use the kwarg</span></div>
+    <div class="ol-row"><span class="ol-ic">🎯</span><span class="ol-k">Task gates it</span><span class="ol-v">Task shape beats anything in the system prompt: <b>summarization never fired (0/105)</b> · math sticky (&#8805;9/10 everywhere) · <b>code 10/10 bare but 0/10 under a professional persona</b>, so persona and task interact</span></div>
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v"><b>Serve the native template (<code>--jinja</code>)</b> · chatml drops tool calls to <b>0%</b> (83%&#8594;0%) · a generic OpenAI-format <i>client</i> is fine, <code>pool</code> not required</span></div>
     <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · Q4_K_M · <code>-fit off</code> · <code>-fa on</code> (<b>2.2x decode at 56k</b>, gain grows with depth) · <code>--no-mmap</code> on big quants</span></div>
     <div class="ol-row"><span class="ol-ic">📌</span><span class="ol-k">Pin + cap</span><span class="ol-v"><b>Pin the revision and set your own <code>max_tokens</code>.</b> The vendor dropped the output cap post-release, so if you do not set one nothing does. The <code>enable_thinking</code> default also moves between revisions</span></div>
@@ -53,7 +54,7 @@
   </div>
   <div class="ol-sec">
     <div class="ol-h">Independently validated: three stacks</div>
-    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 <i>unbounded-generation</i> loops with pin+cap (while the thinking gate stayed shut) · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM, 12h soak) · @Defilan (gfx1151/llama.cpp, kwarg + gate A/B) · ours (Q4_K_M/llama.cpp)</span></span></div>
+    <div class="ol-row"><span class="ol-ic">🟢</span><span class="ol-k">12h / 2947 turns</span><span class="ol-v"><b>99.9% turn success</b>, 0 crashes, 0 restarts, ~4GiB creep, ~13.5s/turn · <b>100% tool calls</b> on native format · 0 <i>unbounded-generation</i> loops with pin+cap (while the thinking gate stayed shut) · integrity clause held 3/3 cross-quant<br><span style="color:var(--sub)">@BlackwellBoy (NVFP4/vLLM: 12h soak + 400-turn gate grid) · @Defilan (gfx1151/llama.cpp: kwarg render check + rule ablation) · ours (Q4_K_M/llama.cpp: 127-scenario battery)</span></span></div>
   </div>
   <div class="ol-sec">
     <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
@@ -63,6 +64,6 @@
       <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag"><b>truncated think kills agent loops</b> (400: needs content or tool_calls; silent + deterministic)</span><span class="ol-tag">invents bugs when thinking is ON</span><span class="ol-tag">thinking ON hung a long agent loop (OFF 30/30 vs ON 11/30)</span><span class="ol-tag">over-refuses authorized work (thinking ON)</span><span class="ol-tag">misses covert self-harm signals</span></div></div>
     </div>
   </div>
-  <div class="ol-ft"><span>Q4_K_M · pinned 2026-07-24 (vendor drift) · held-out behavioral tests + 12h soak + 2 independent stacks</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
+  <div class="ol-ft"><span>Q4_K_M · pinned 2026-07-24 (vendor drift) · held-out behavioral tests + 12h soak + 2 independent replications</span><span class="ol-draft" style="color:var(--accent)">offlabel</span></div>
 </div>
 </div>
