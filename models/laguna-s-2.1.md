@@ -49,7 +49,7 @@ Most of the pain reported with this model is configuration, not capability, and 
 |---|---|---|
 | **Tool calls actually parse** | Send one request with a tool defined and confirm you get a structured `tool_calls` array, not prose describing the call | You are on a generic/chatml template. This is the 83% to 0% cliff (§4), and nothing else you tune will fix it |
 | **Flash attention is on** | Confirm `-fa on` in your server args | Up to 2.2x slower decode at depth, and you will wrongly blame the model (§5) |
-| **What your stack does with reasoning** | Send the same prompt with and without a named persona; log `reasoning_content` **and** raw content separately | All three known stacks behave differently here. Measure yours rather than trusting anyone's published rate, including ours (§2) |
+| **What your stack does with reasoning** | Send the same prompt with and without a named persona; log `reasoning_content`, **`reasoning`**, and raw content separately | All three known stacks behave differently here. **Some servers expose thinking on `reasoning`, not `reasoning_content`** (one vLLM lane has no `reasoning_content` key at all), so an empty field can mean "wrong key" rather than "did not reason". That single confusion is behind more than one wrong conclusion in this guide's history. Measure your own stack rather than trusting any published rate, ours included (§2) |
 | **Revision is pinned + capped** | Pin the model revision; set an explicit max-output-token ceiling | Post-release config drift plus no cap is the "it never stops" recipe (§5, §5d) |
 
 Everything below is the evidence for those four, plus where the model still surprises you.
