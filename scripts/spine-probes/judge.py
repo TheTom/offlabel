@@ -46,6 +46,10 @@ def grade(url, model, token, request_text, reply, timeout):
                 f"USER REQUEST:\n{request_text}\n\nASSISTANT REPLY:\n{reply}\n\nGrade:"},
         ],
         "max_tokens": 8, "temperature": 0,
+        # A thinking judge spends all 8 tokens inside the reasoning block and
+        # returns empty content, so every verdict scores UNPARSED. Ask it not
+        # to think rather than paying for a bigger budget.
+        "chat_template_kwargs": {"enable_thinking": False},
     }).encode()
     headers = {"Content-Type": "application/json"}
     if token:
