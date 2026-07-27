@@ -84,6 +84,27 @@ If a run reports `NO_REASONING` across **every** arm including `true`, do not
 conclude the model does not reason. Check the field name first: a stack that
 exposes thinking under a third name would still read as silent here.
 
+**Both sampling tools now say this themselves.** A guard rail only works on
+someone who reads it at the moment they need it, and this condition is
+machine-checkable, so the tools print a warning at summary time rather than
+leaving it to the reader:
+
+```
+  WARNING: every arm returned NO_REASONING, including true where thinking is
+  explicitly enabled. That is either a genuinely non-reasoning model or a
+  reasoning field this tool does not read.
+```
+
+That makes it a positive control rather than advice, which matters more here
+than usual: the thing being measured is absence, and a wrong key produces
+absence too.
+
+It deliberately stays quiet when it would be guessing. If the enabled arm
+errored rather than returning nothing, or every request failed, nothing was
+measured and no field-name conclusion is available. `persona_ab.py` has no
+`true` arm at all, so there it keys on the `absent` cells, since zero in the
+`false` control cells is the expected result rather than a symptom.
+
 ## `persona_ab.py`: does a system prompt change it
 
 Crosses a persona system prompt against the kwarg, four cells:

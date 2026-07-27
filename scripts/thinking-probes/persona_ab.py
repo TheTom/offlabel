@@ -59,6 +59,32 @@ CELLS = [
 THINK_MARKER = re.compile(r"</?think>", re.I)
 
 
+def field_name_warning(rows):
+    """Positive control for the one failure this tool cannot otherwise see.
+
+    What is being measured is absence, and a reasoning field this tool does
+    not read produces absence too. Note this grid has no explicit `true`
+    arm: the `false` cells are the structural control, where zero is the
+    expected result, so the signal is zero in the `absent` cells as well.
+
+    Returns a warning string, or None when the check does not apply.
+    """
+    scored = [r for r in rows if r["reasoned"] is not None]
+    if not scored:
+        return None                 # nothing was measured; not this failure
+    if any(r["reasoned"] for r in scored):
+        return None                 # something reasoned; the reader works
+    available = [k for (_, k) in CELLS if k != "false"]
+    if not any(r["kwarg"] in available for r in scored):
+        return None                 # only control cells scored; says nothing
+    return ("  WARNING: no cell reasoned, including "
+            f"{'/'.join(sorted(set(available)))} where thinking is available\n"
+            "  rather than structurally suppressed. That is either a genuinely\n"
+            "  non-reasoning model or a reasoning field this tool does not read.\n"
+            "  Check the field name against the server's response before\n"
+            "  believing these numbers.")
+
+
 def post(url, body, timeout):
     req = urllib.request.Request(
         url, data=json.dumps(body).encode(),
@@ -134,6 +160,11 @@ def main():
         n = sum(1 for r in rs if r["reasoned"])
         mr = sum(r["reasoning_chars"] for r in rs) / max(len(rs), 1)
         print(f"  {persona:<11} {kwarg:<7} {n:>4}/{len(rs):<5} {mr:>18.0f}")
+
+    warning = field_name_warning(rows)
+    if warning:
+        print()
+        print(warning)
 
     print("\n=== persona effect WITHIN the absent arm, per prompt shape ===")
     for pname in PROMPTS:
