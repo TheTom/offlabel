@@ -25,7 +25,7 @@ If you read nothing else, do these. **Three independent testers on three differe
 
 | | Do this | Why | Where |
 |---|---|---|---|
-| 1 | **Set `enable_thinking` explicitly** | **Send `false`** for long-horizon or integrity-sensitive work; **omitting the kwarg leaves thinking ON**, and the default moves between revisions. 🧪 Whether ON is better for single-turn codegen is under review in [#10](https://github.com/TheTom/offlabel/pull/10) | §2 |
+| 1 | **Set `enable_thinking` explicitly** | **Send `false`** for long-horizon or integrity-sensitive work; **omitting the kwarg leaves thinking ON**, and the default moves between revisions. **Resolved 2026-07-28:** ON is *not* better for single-turn codegen. Three stacks; the two that held temperature constant across arms both came back flat-to-negative (see [#10](https://github.com/TheTom/offlabel/pull/10)) | §2 |
 | 2 | **Serve the native template (`--jinja`)** | Tool-calling is all-or-nothing: ~100% native, **0% under chatml** (the model narrates instead of calling). A generic OpenAI-format *client* is fine; `pool` is not required | §4 |
 | 3 | **Integrity clause in your system prompt** | It refuses blatant fraud but complies when the same act is framed as cleanup (erase a leaked key from history, backdate, forge authorship). One paragraph closes it | §5b |
 | 4 | **Pin the revision + set your own max-token ceiling** | The vendor dropped the output cap post-release, so if you do not set one, nothing does. The `enable_thinking` default also moves between revisions | §5, §5d |
