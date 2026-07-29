@@ -3,3 +3,7 @@
 models/qwopus-coder.md
 cards/qwopus-coder.html
 cards/img/qwopus-coder.png
+
+# python build artifacts
+__pycache__/
+*.pyc
