@@ -75,6 +75,33 @@ def rendered_tail(base, arm, timeout):
     return p[-28:], p.rstrip().endswith("<think>")
 
 
+def field_name_warning(rows):
+    """Positive control for the one failure this tool cannot otherwise see.
+
+    What is being measured is absence, and a reasoning field this tool does
+    not read produces absence too. The two are indistinguishable in the
+    numbers, so when nothing reasoned anywhere, including the arm that
+    explicitly enables thinking, say so rather than let the zeros stand.
+
+    Returns a warning string, or None when the check does not apply.
+    """
+    scored = [r for r in rows if r["verdict"] != "ERROR"]
+    if not scored:
+        return None                 # nothing was measured; not this failure
+    if any(r["verdict"].startswith("REASONED_") for r in scored):
+        return None                 # something reasoned; the reader works
+    # Derived, not hardcoded, so it stays correct if ARMS changes.
+    enabled = [a for a, kw in ARMS.items()
+               if kw and kw.get("enable_thinking") is True]
+    if not any(r["arm"] in enabled for r in scored):
+        return None                 # the enabled arm produced no scored sample
+    return ("  WARNING: every arm returned NO_REASONING, including "
+            f"{'/'.join(enabled)} where thinking is explicitly enabled.\n"
+            "  That is either a genuinely non-reasoning model or a reasoning\n"
+            "  field this tool does not read. Check the field name against the\n"
+            "  server's response before believing these numbers.")
+
+
 def verdict(content, reasoning):
     if reasoning.strip():
         return "REASONED_PARSED"
@@ -128,7 +155,13 @@ def main():
             d = post(args.base + "/v1/chat/completions", body, args.timeout)
             ch = d["choices"][0]
             content = ch["message"].get("content") or ""
-            reasoning = ch["message"].get("reasoning_content") or ""
+            # Servers disagree on the field name: llama.cpp populates
+            # reasoning_content, vLLM exposes reasoning. Reading only the first
+            # makes every arm look like NO_REASONING on a vLLM lane, which is
+            # this tool inventing the answer it exists to measure
+            # (offlabel#8, @Blackwellboy).
+            reasoning = (ch["message"].get("reasoning_content")
+                         or ch["message"].get("reasoning") or "")
             finish = ch.get("finish_reason")
             v = verdict(content, reasoning)
         except Exception as exc:                                # noqa: BLE001
@@ -152,6 +185,11 @@ def main():
         mr = sum(r["reasoning_chars"] for r in rs) / max(len(rs), 1)
         print(f"  {arm:<8} {c('REASONED_PARSED'):>7} {c('REASONED_UNPARSED'):>9} "
               f"{c('NO_REASONING'):>6} {c('ERROR'):>4}  {mr:>10.0f}")
+
+    warning = field_name_warning(rows)
+    if warning:
+        print()
+        print(warning)
 
     print("\n=== per prompt shape (is the effect prompt-specific?) ===")
     for pname in PROMPTS:
