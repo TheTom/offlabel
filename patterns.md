@@ -121,7 +121,7 @@ Three known channels, all on the serving side rather than the model:
 
 **It moves verdicts, not just bytes.** On a third stack, prefix-cache coverage tracked `finish_reason` with no overlap: every run at or below 79% cache hit returned `length` and ran to the cap generating invented content; every run at 99.8%+ returned `stop` with a correct short answer. That is a behavioral outcome flipping, not a token-level tie.
 
-**What it invalidates.** Any A/B whose arms ran in separate runs, or sequentially against a shared server, is carrying this. A published reasoning-depth result was retracted on exactly these grounds: a large apparent effect measured across runs went flat (all pairwise p >= 0.13) once the arms were interleaved inside a single driver.
+**What it invalidates.** Any A/B whose arms ran in separate runs, or sequentially against a shared server, is carrying this. A published reasoning-depth result was retracted for being a cross-run comparison: a large apparent effect measured across runs went flat (all pairwise p >= 0.13) once the arms were interleaved inside a single driver. The channels above are reasons cross-run comparisons are dangerous, not the established mechanism of that retraction; that lane ran a single driver at concurrency 1.
 
 **The protocol that survives it:**
 - **Interleave arms inside one run.** Never block them, never compare against a previously published cell.
