@@ -102,12 +102,34 @@ Not wrong answers. No answer. 4,096 is not a stingy ceiling for that task, and t
 
 Two consequences worth carrying into any benchmark harness:
 
-1. **Score cap-hits as failures, not as excluded samples.** Dropping them inflates the score of exactly the arm that degenerates most, which is usually the thinking-on arm.
+1. **Score cap-hits with no extractable output as failures, not as excluded samples.** Dropping them inflates the score of exactly the arm that degenerates most, which is usually the thinking-on arm. **Bucket on "produced no usable output", never on `finish_reason` alone** (corrected 2026-07-28, after both testers who proposed the original rule retracted the bare form). A cap-hit that still emitted correct code is not a failure: one such case passed its tests twice. On one stack 22 runs had no extractable output while only 15 hit the ceiling, so the two criteria both over- and under-count relative to each other.
 2. **Log the cap-hit rate per sample alongside the score.** A headline pass-rate that hides "one arm returned nothing 28 times out of 30" is not measuring what it claims to.
 
 There is a related wire-level failure specific to agent loops: some servers reject an assistant message that has reasoning but neither content nor `tool_calls`, so a single capped turn kills the whole run silently and every retry fails identically. See the Laguna guide §5f.
 
 Verified against published raw logs from an independent tester's runs (both lanes, per-sample), not from summary tables.
+
+## Your serving layer can decide the answer, and the default settings hide it
+
+Established independently on three stacks and two serving layers (llama.cpp and vLLM) in one day, which is why it belongs here rather than in any one model's guide. **Identical requests can produce different results depending on what the server processed before them.**
+
+Three known channels, all on the serving side rather than the model:
+
+1. **Concurrent batched decoding.** Sequences decoding in one fused batch change batch shape, so reduction order, so floating-point rounding, so logits. At temperature 0 the sampler is argmax, so a near-tie flips and the divergence compounds through the KV cache. Measured: idle produced 1 distinct output in 4 runs; at 2 concurrent requests, **4 distinct in 6**, all differing from the idle baseline. Serialized (`-np 1`), **0 of 6** differed.
+2. **Prefix cache reuse, enabled by default.** The same request served from a fresh full prefill is byte-stable across repeats; served from a warm prefix it returns different bytes. No restart, no concurrency, stock flags.
+3. **Setting the disable flag is not sufficient.** On a second stack with the cache flag explicitly off, temp 0, single slot, the cold path was stable 3/3 and the warm path still diverged.
+
+**It moves verdicts, not just bytes.** On a third stack, prefix-cache coverage tracked `finish_reason` with no overlap: every run at or below 79% cache hit returned `length` and ran to the cap generating invented content; every run at 99.8%+ returned `stop` with a correct short answer. That is a behavioral outcome flipping, not a token-level tie.
+
+**What it invalidates.** Any A/B whose arms ran in separate runs, or sequentially against a shared server, is carrying this. A published reasoning-depth result was retracted for being a cross-run comparison: a large apparent effect measured across runs went flat (all pairwise p >= 0.13) once the arms were interleaved inside a single driver. The channels above are reasons cross-run comparisons are dangerous, not the established mechanism of that retraction; that lane ran a single driver at concurrency 1.
+
+**The protocol that survives it:**
+- **Interleave arms inside one run.** Never block them, never compare against a previously published cell.
+- **Flush the slot between samples** rather than trusting the disable flag, and **run a cold control proving the flush actually isolates on your lane**.
+- **Report four things, not one**: prefix-reuse setting, concurrency setting, flush procedure, and the isolation control.
+- Prefer `-np 1` when you need determinism more than throughput.
+
+**The judgment rule that came out of it, which generalizes further:** when a new noise source turns up, the question for each existing claim is whether it has a mechanism the noise cannot reach. One tester kept a finding with a deterministic template-render basis and withdrew a marginal p=0.041 cell from the same study, on the same day, from the same new evidence. Treating a new noise source as fatal to everything, or to nothing, are both wrong.
 
 ## Sources
 Synthesized from internal behavioral testing across several models (Ornith-1.0-35B, Ornith-1.0-9B,
