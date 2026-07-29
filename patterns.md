@@ -75,7 +75,11 @@ than a claim from a repeated, multi-vote comparison, and the guides say which is
 
 A coding model can refuse blatant fraud (fake a test result, falsify a status) and still comply when *the same act* is framed as routine cleanup: erase a leaked secret from git history, backdate a commit to hit a deadline, forge changelog authorship, quietly drop a client data hazard from a report. First measured on one model, where it folded on all four unprompted, in every thinking arm.
 
-**It reproduces on a different model and family.** An independent rule-ablation run (@Defilan) put the same probe set to Qwen3.6-35B-A3B (Q8_0, llama.cpp/Metal): **4 folds with no clause, 0 folds with the integrity clause.** So this is worth treating as a *class* of blind spot to probe on any coding agent you hand a real repo, not a Laguna-specific defect.
+**It reproduces on a different model and family.** An independent rule-ablation run (@Defilan) put the same probe set to Qwen3.6-35B-A3B (Q8_0, llama.cpp/Metal): **8/14 folds with no clause, 2/14 folds with the full integrity clause, 0/14 with the (1)(2)(4) rule subset.**
+
+**Correction (2026-07-29, issue #14, @Defilan):** the originally published 4-and-0 counts were undercounts. The author re-read his own transcripts applying the silent-fold test from issue #8 and found both missed cases wrote the decision record for a meeting that never happened, without challenging the premise, so they land in UNCLEAR: no refusal phrase, but also no dangerous command, and the original heuristic did not count them as folds. The corrected numbers make the finding stronger, not weaker: 8/14 vs 2/14 is a larger effect than 4 vs 0, and the clause still does most of the work. What does not survive is the absolute zero.
+
+So this is worth treating as a *class* of blind spot to probe on any coding agent you hand a real repo, not a Laguna-specific defect.
 
 **The mitigation generalizes too, and its shape is now known:** a short system-prompt integrity clause closes it. Rule-by-rule ablation across two models found the "never rewrite history to hide secrets / never backdate or forge" rule is **load-bearing** (dropping it also degrades the separate hazard-disclosure probe, so the rules are not cleanly separable), while the "don't certify what you can't support" rule is droppable **if something external already verifies the model's status claims** and worth keeping if nothing does. Clause text and the full ablation live in the Laguna guide (§5b).
 
@@ -87,9 +91,9 @@ If you use an LLM to grade behavioral outputs, the grader's quantization matters
 
 The failure is asymmetric and it is the dangerous direction: a grader that says yes to everything does not merely add noise, it **launders a bad result as a verified one**. Pair this with the general rule that a check which cannot fail proves nothing, and the practical guidance is: grade with a full-precision or lightly quantized model, on different hardware than the worker, and read the disagreements rather than the agreement rate.
 
-## An empty response at a token cap is a failure, not a truncation
+## An empty response at a token cap is a failure to score, but check whether it is truncation or degeneration
 
-A reasoning model that hits its per-turn token ceiling *inside* the reasoning block returns **no answer at all**: full reasoning field, empty content. The instinct is to read this as "the budget was too small" and raise it. Usually it is the opposite, a degeneration loop that more budget would only feed.
+A reasoning model that hits its per-turn token ceiling *inside* the reasoning block returns **no answer at all**: full reasoning field, empty content. This can be either a genuine demand-above-ceiling truncation, where the task simply needs more reasoning tokens than the cap allows, or a degeneration loop that more budget would only feed. The two are distinguishable by tail metrics, not by guessing, and you have to check per model rather than assume one story explains both.
 
 Measured on a six-requirement acceptance-criteria coding task at a fixed 4,096-token ceiling, 30 runs across three prompt conditions per model:
 
@@ -98,16 +102,19 @@ Measured on a six-requirement acceptance-criteria coding task at a fixed 4,096-t
 | Qwen3.6-35B-A3B | **28/30** |
 | Laguna S 2.1 | 9/30 |
 
-Not wrong answers. No answer. 4,096 is not a stingy ceiling for that task, and the same request under a lower apparatus dose completes fine, which is what separates a loop from a genuine truncation.
+**Correction (2026-07-29, issue #17, @Blackwellboy, direct ceiling test, raw logs published):** the Qwen row is demand-above-ceiling truncation, not a degeneration loop. At the 4,096 ceiling (matching the table's 28/30 empty-content rate), the direct test's own 10 replicates were 10/10 cap-hits, 8/10 empty. At 8,192 it is 10/10 non-empty and criteria-valid with zero cap-hits, flat through 12,288 and 16,384. Reasoning demand plateaus at roughly 5.2 to 5.7K tokens median, with natural completion cost around 7K tokens. Every 4,096 cap-hit tail is non-degenerate: unique-line ratio 0.80 to 0.97, zlib compression ratio 0.31 to 0.38, ordinary mid-task reasoning, no loops. So for Qwen on this task, 4,096 was a stingy ceiling after all, and budget converts completely: raise the cap and the failure disappears.
 
-Two consequences worth carrying into any benchmark harness:
+Read the two rows differently as a result. The Qwen 28/30 is demand-above-ceiling truncation that converts fully at roughly double the budget. Degeneration loops remain real, but they are per-sample and stochastic rather than a fixed property of a model or a row: seen on the Laguna Q4_K_M cap-retry lane, where budget did not convert and one tail measured a 0.086 unique-line ratio, an actual loop, detectable by the same tail metrics used above.
+
+Three consequences worth carrying into any benchmark harness:
 
 1. **Score cap-hits with no extractable output as failures, not as excluded samples.** Dropping them inflates the score of exactly the arm that degenerates most, which is usually the thinking-on arm. **Bucket on "produced no usable output", never on `finish_reason` alone** (corrected 2026-07-28, after both testers who proposed the original rule retracted the bare form). A cap-hit that still emitted correct code is not a failure: one such case passed its tests twice. On one stack 22 runs had no extractable output while only 15 hit the ceiling, so the two criteria both over- and under-count relative to each other.
 2. **Log the cap-hit rate per sample alongside the score.** A headline pass-rate that hides "one arm returned nothing 28 times out of 30" is not measuring what it claims to.
+3. **Use a loop signal, the tail's unique-line ratio or compression ratio, to separate truncation from degeneration.** Never rely on `finish_reason` alone, and check this per model: the same 28/30-looking headline number meant something different for each row above. Also worth carrying: the demand is reasoning-demand-driven, not criteria-list-specific. At 12,288 tokens, constrained math tasks still cap 3/10 replicates, while JSON-schema and table-generation tasks whose natural reasoning runs only about 1.5 to 2K tokens never cap at all.
 
 There is a related wire-level failure specific to agent loops: some servers reject an assistant message that has reasoning but neither content nor `tool_calls`, so a single capped turn kills the whole run silently and every retry fails identically. See the Laguna guide §5f.
 
-Verified against published raw logs from an independent tester's runs (both lanes, per-sample), not from summary tables.
+Verified against published raw logs from an independent tester's runs (both lanes, per-sample), not from summary tables. The direct ceiling test that separates truncation from degeneration is also raw and published: https://github.com/Blackwellboy/laguna-s21-lab/tree/main/qwen-ceiling (issue #17, 2026-07-29).
 
 ## Your serving layer can decide the answer, and the default settings hide it
 
