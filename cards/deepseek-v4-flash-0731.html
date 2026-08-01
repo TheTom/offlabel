@@ -1,0 +1,71 @@
+<!-- offlabel CARD: DeepSeek-V4-Flash-0731 (Config-I 2.88bpw GGUF). CSS identical to cards/_reference.html (consistent brand);
+  content = release burn-in findings 2026-07-31/08-01; footer pins the tested quant + fork build. EARLY status. -->
+<div class="ol-wrap">
+<style>
+.ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;color:var(--ink)}
+@media (prefers-color-scheme:dark){.ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}}
+:root[data-theme="dark"] .ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}
+:root[data-theme="light"] .ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee}
+.ol-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ol-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.ol-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ol-name{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.ol-brand{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.14em;text-transform:uppercase}
+.ol-meta{margin-top:3px;font-size:12px;color:var(--sub)}
+.ol-chip{display:inline-block;background:var(--chip);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--ink);margin-right:6px}
+.ol-verdict{margin-top:11px;font-size:13.5px;line-height:1.4}
+.ol-sec{padding:13px 18px;border-bottom:1px solid var(--line)}
+.ol-h{font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--sub);margin-bottom:9px}
+.ol-row{display:flex;gap:9px;font-size:13px;line-height:1.35;margin:6px 0}
+.ol-ic{width:18px;flex:none;text-align:center}
+.ol-k{font-weight:700;flex:none;width:74px}
+.ol-v{color:var(--ink)}
+.ol-tm{display:grid;grid-template-columns:1fr;gap:8px}
+.ol-band{border-radius:10px;padding:9px 11px}
+.ol-band.hold{background:var(--holdbg)}
+.ol-band.fold{background:var(--foldbg)}
+.ol-band.warn{background:var(--warnbg)}
+.ol-bl{font-size:11px;font-weight:800;letter-spacing:.04em;margin-bottom:5px}
+.ol-band.hold .ol-bl{color:var(--hold)}
+.ol-band.fold .ol-bl{color:var(--fold)}
+.ol-band.warn .ol-bl{color:var(--warn)}
+.ol-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ol-tag{font-size:11.5px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 7px;line-height:1.3}
+.ol-ft{padding:10px 18px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--sub)}
+.ol-draft{font-weight:800;color:var(--warn);letter-spacing:.08em}
+</style>
+<div class="ol-card">
+  <div class="ol-hd">
+    <div class="ol-top"><span class="ol-name">DeepSeek-V4-Flash-0731</span><span class="ol-brand">offlabel</span></div>
+    <div class="ol-meta">DeepSeek · 284B / 21B active MoE · text · MIT · tested: Config-I 2.88bpw GGUF</div>
+    <div style="margin-top:8px"><span class="ol-chip">Agentic generalist</span><span class="ol-chip">one 128GB box</span><span class="ol-chip">95 GiB</span></div>
+    <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/thetom-ai/DeepSeek-V4-Flash-ConfigI-GGUF" style="color:var(--accent);text-decoration:none">🤗 thetom-ai/DeepSeek-V4-Flash-ConfigI-GGUF</a></div>
+    <div class="ol-verdict"><b>284B-class reasoning that genuinely fits one 128GB Spark or Mac.</b> PPL is sane (15.6 / 12.9) and reasoning is coherent, but the serving minefield is real: two silent backend-corruption traps, a mandatory sampling floor, a verbose thinker that eats naive budgets, and a consistent repetition-loop mode on long symbolic math.</div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Use it like this</div>
+    <div class="ol-row"><span class="ol-ic">🔩</span><span class="ol-k">Engine</span><span class="ol-v"><b>TurboQuant llama.cpp fork, deepseek4-merge tip or later.</b> Stock llama.cpp cannot load TQ3_1S. Pre-fix fork builds have silent CUDA corruption (kernel diverges ~2%/layer, compounds to token soup)</span></div>
+    <div class="ol-row"><span class="ol-ic">🍎</span><span class="ol-k">Metal</span><span class="ol-v"><b>Export <code>TQ_NO_ROTATE=1</code>.</b> Fused rotate-act kernel silently corrupts batched prefill (PPL = vocab size) while decode looks fine. With the flag: PPL 16.0, matches CPU</span></div>
+    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Sampling</span><span class="ol-v"><b>temp 1.0 · top_p 0.95</b> (official) · greedy loops on this family, do not evaluate greedy · fp16 KV only (q8_0 KV reported to corrupt V4)</span></div>
+    <div class="ol-row"><span class="ol-ic">📏</span><span class="ol-k">Budget</span><span class="ol-v"><b><code>max_tokens</code> 2048 minimum.</b> Thinking fires on ~every request and is verbose by design (vendor allows 384K at high effort). A 600-token budget dies mid-think and cosplays as a broken model</span></div>
+    <div class="ol-row"><span class="ol-ic">🧵</span><span class="ol-k">Parse both</span><span class="ol-v"><b>Read <code>reasoning_content</code>, not just <code>content</code>.</b> The complete answer regularly lands in the reasoning field while content is empty or degenerates post-think. Content-only harnesses score correct turns as failures</span></div>
+    <div class="ol-row"><span class="ol-ic">📦</span><span class="ol-k">Files</span><span class="ol-v">3 split parts under the HF 50GB cap · load from part <code>00001</code> with siblings present · 95 GiB weights + fp16 KV fits 128GB unified with ~25GB headroom</span></div>
+    <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best / avoid</span><span class="ol-v"><b>Best:</b> agentic/coding work on one box, long-context recall (compact MLA KV) · <b>Avoid:</b> unattended long symbolic math, content-only harnesses, stock-llama.cpp environments</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Measured (release burn-in, 2 backends)</div>
+    <div class="ol-row"><span class="ol-ic">📊</span><span class="ol-k">Quality</span><span class="ol-v">Wikitext PPL <b>15.64</b> @512 (60 chunks) · <b>12.86</b> @2048 (15 chunks), CUDA GB10 · coherent greedy recall + correct method on held-out probes (5-test battery, correct reasoning throughout)</span></div>
+    <div class="ol-row"><span class="ol-ic">⚡</span><span class="ol-k">Speed</span><span class="ol-v">This quant on the TurboQuant fork: GB10 CUDA ~19 pp / ~15 tg t/s (pre-fix build, quiet) · M5 Metal ~23 pp / ~6 tg t/s (contention-tainted, re-bench owed) · numbers under I/O load are garbage (ours collapsed 40x; discarded)</span></div>
+    <div class="ol-row"><span class="ol-ic">🚀</span><span class="ol-k">Faster engine</span><span class="ol-v"><b>For raw speed, run a ds4-format quant on DwarfStar (antirez/ds4), not this fork.</b> Same M5 Metal, an IQ2XXS ds4 quant decoded <b>29 to 35 tg t/s flat across 512 to 8K ctx</b> (prefill 208 to 445 pp), roughly <b>5x our fork's Metal decode</b> on this arch. Different quant + MLA-native engine, so it is an engine choice, not a Config-I number. The fork is the correct home for the Config-I recipe; DwarfStar is the speed home for DSv4</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Trust map: where it holds vs folds</div>
+    <div class="ol-tm">
+      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS</div><div class="ol-tags"><span class="ol-tag">procedural + coding reasoning</span><span class="ol-tag">factual recall w/ reasoning</span><span class="ol-tag">correct tool-call planning</span><span class="ol-tag">PPL sane at 2.88bpw</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS</div><div class="ol-tags"><span class="ol-tag"><b>repetition-loops deep in long symbolic derivations</b> (reproduced at official sampling, quiet box; depth-triggered, shallow probes miss it)</span><span class="ol-tag">literal output-format compliance within budget</span></div><div style="margin-top:7px;font-size:11.5px;color:var(--fold)"><b>Fix (A/B, n=1):</b> <code>--dry-multiplier 0.8</code> (or <code>--repeat-penalty 1.1</code>) recovered the correct answer where the default sampler looped forever. <b>Base model exonerated:</b> the same weights at the same sampling on a different low-bit quant + engine (IQ2XXS on DwarfStar) answered cleanly in 875 chars, no loop. So the loop is <b>our stack</b> (Config-I 2-bit quant and/or fork serving), not DSv4-Flash itself. Quant-vs-engine split still open.</div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag"><b>short coherent output proves nothing</b>: decode + prefill are different kernels; verify per-backend with PPL</span><span class="ol-tag">no jinja template ships; GGUF path approximates the vendor encoding scripts</span><span class="ol-tag">no structured tool_calls testing yet</span><span class="ol-tag">behavioral coverage is 1 day old, single tester</span></div></div>
+    </div>
+  </div>
+  <div class="ol-ft"><span>Config-I 2.88bpw · fork @ dsv4-merge+fixes · pinned 2026-08-01 · burn-in, not a workup</span><span class="ol-draft">EARLY</span></div>
+</div>
+</div>
