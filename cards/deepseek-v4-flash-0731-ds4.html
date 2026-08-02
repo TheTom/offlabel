@@ -1,0 +1,76 @@
+<!-- offlabel CARD: DeepSeek-V4-Flash-0731 on DwarfStar-4 (IQ2XXS). CSS identical to cards/_reference.html.
+  content = independent replication + Laguna-depth battery, 2026-08-02. EARLY status. -->
+<div class="ol-wrap">
+<style>
+.ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;color:var(--ink)}
+@media (prefers-color-scheme:dark){.ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}}
+:root[data-theme="dark"] .ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}
+:root[data-theme="light"] .ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee}
+.ol-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ol-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.ol-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ol-name{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.ol-brand{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.14em;text-transform:uppercase}
+.ol-meta{margin-top:3px;font-size:12px;color:var(--sub)}
+.ol-chip{display:inline-block;background:var(--chip);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--ink);margin-right:6px}
+.ol-verdict{margin-top:11px;font-size:13.5px;line-height:1.4}
+.ol-sec{padding:13px 18px;border-bottom:1px solid var(--line)}
+.ol-h{font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--sub);margin-bottom:9px}
+.ol-row{display:flex;gap:9px;font-size:13px;line-height:1.35;margin:6px 0}
+.ol-ic{width:18px;flex:none;text-align:center}
+.ol-k{font-weight:700;flex:none;width:74px}
+.ol-v{color:var(--ink)}
+.ol-tm{display:grid;grid-template-columns:1fr;gap:8px}
+.ol-band{border-radius:10px;padding:9px 11px}
+.ol-band.hold{background:var(--holdbg)}
+.ol-band.fold{background:var(--foldbg)}
+.ol-band.warn{background:var(--warnbg)}
+.ol-bl{font-size:11px;font-weight:800;letter-spacing:.04em;margin-bottom:5px}
+.ol-band.hold .ol-bl{color:var(--hold)}
+.ol-band.fold .ol-bl{color:var(--fold)}
+.ol-band.warn .ol-bl{color:var(--warn)}
+.ol-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ol-tag{font-size:11.5px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 7px;line-height:1.3}
+.ol-ft{padding:10px 18px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--sub)}
+.ol-draft{font-weight:800;color:var(--warn);letter-spacing:.08em}
+code{font-size:11.5px;background:var(--chip);padding:1px 4px;border-radius:4px}
+</style>
+<div class="ol-card">
+  <div class="ol-hd">
+    <div class="ol-top"><span class="ol-name">DeepSeek-V4-Flash-0731 · ds4</span><span class="ol-brand">offlabel</span></div>
+    <div class="ol-meta">DeepSeek · 256-expert MoE, ~21B active · DwarfStar-4 (Entrpi v0.5.2) · IQ2XXS · MIT</div>
+    <div style="margin-top:8px"><span class="ol-chip">One DGX Spark</span><span class="ol-chip">Agentic</span><span class="ol-chip">DSpark spec-decode</span></div>
+    <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/antirez/deepseek-v4-gguf" style="color:var(--accent);text-decoration:none">🤗 antirez/deepseek-v4-gguf</a> · <a href="https://github.com/Entrpi/ds4" style="color:var(--accent);text-decoration:none">Entrpi/ds4</a></div>
+    <div class="ol-verdict"><b>A ~21B-active MoE that runs genuinely well on one 128GB DGX Spark.</b> Sub-second TTFT, 21-26 tok/s decode with working DSpark speculation, 21 parallel sessions at full 262K, clean 8/8 reasoning + 3/3 tools, and it does <b>not</b> reproduce the repetition-loop our Config-I GGUF hit. <b>NOTE: 256 experts / ~21B active, not the 685B/64-expert config a viral writeup claimed.</b></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Run it (single + parallel)</div>
+    <div class="ol-row"><span class="ol-ic">📦</span><span class="ol-k">Get it</span><span class="ol-v">quant <a href="https://huggingface.co/antirez/deepseek-v4-gguf" style="color:var(--accent)">antirez/deepseek-v4-gguf</a> (IQ2XXS 86.7GB) · drafter <a href="https://huggingface.co/bleysg/DeepSeek-V4-Flash-DSpark-drafter-GGUF" style="color:var(--accent)">bleysg/...DSpark-drafter</a> (7GB) · engine <a href="https://github.com/Entrpi/ds4" style="color:var(--accent)">Entrpi/ds4</a> v0.5.2 · installer <a href="https://github.com/MiaAI-Lab/DeepSeek-v4-Flash-One-DGX-Spark" style="color:var(--accent)">MiaAI-Lab one-DGX</a></span></div>
+    <div class="ol-row"><span class="ol-ic">1️⃣</span><span class="ol-k">Single</span><span class="ol-v"><code>ds4-server --cuda -m &lt;iq2xxs.gguf&gt; -c 262144 --host 0.0.0.0 --port 8888</code> (+ <code>DS4_CONT_DSPARK=1</code> <code>DS4_DSPARK_MODEL=&lt;drafter&gt;</code>). Full 262K, ~21-26 tok/s decode, TTFT ~170-320ms</span></div>
+    <div class="ol-row"><span class="ol-ic">🔀</span><span class="ol-k">Parallel</span><span class="ol-v">Same server batches <b>max_seq 21</b> at 262K (594 MiB/slot). Point N clients at :8888, nothing else needed. <b>Measured 100% success to N=24, peak ~78 tok/s aggregate at 21.</b> The viral "only 2 concurrent" claim is busted</span></div>
+    <div class="ol-row"><span class="ol-ic">⚠️</span><span class="ol-k">Port</span><span class="ol-v">ds4-server default port is <b>8000</b>; always pass <code>--port</code> or it collides with a llama.cpp server</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Use it like this</div>
+    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Sampling</span><span class="ol-v">temp <b>1.0</b>, top_p <b>0.95</b> (official). Lowering temp does <b>not</b> fix the content-dump bug (0.6 vs 1.0 both 4/4)</span></div>
+    <div class="ol-row"><span class="ol-ic">📝</span><span class="ol-k">System prompt</span><span class="ol-v"><b>Add:</b> "Answer concisely. Do not deliberate, plan, or write meta-commentary in your response; give the direct answer only." Took the signature bug <b>4/4 → 0/4</b></span></div>
+    <div class="ol-row"><span class="ol-ic">🔁</span><span class="ol-k">Retry rule</span><span class="ol-v"><code>finish_reason=="length"</code> + near-empty <code>reasoning_content</code> ⇒ incomplete, retry (content-dump bug). Tell: <code>content</code> starting <code>"1.  **"</code> is mid-deliberation, not an answer</span></div>
+    <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Never</span><span class="ol-v">send <code>enable_thinking:false</code>; it correlates 3/3 <b>with</b> the bug, doesn't suppress reasoning</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Measured (independent replication, on-box)</div>
+    <div class="ol-row"><span class="ol-ic">⚡</span><span class="ol-k">Speed</span><span class="ol-v">decode <b>21-26 tok/s</b> · DSpark accept 29-87%, 3+ tok/step short gens · prefill ~1000 tok/s at depth · TTFT <b>170-320ms</b> (viral post claimed 3-16s)</span></div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Quality</span><span class="ol-v">reasoning <b>8/8</b> · tool calling <b>3/3</b> (incl. parallel multi-tool) · GPU 94-96% util</span></div>
+    <div class="ol-row"><span class="ol-ic">📐</span><span class="ol-k">Arch</span><span class="ol-v">GGUF header: <code>deepseek4</code>, 256 experts, 6 active +1 shared, 43 layers, MLA 1-KV-head. <b>~21B active, not 685B</b></span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Trust map: where it holds vs folds</div>
+    <div class="ol-tm">
+      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS (measured)</div><div class="ol-tags"><span class="ol-tag">harmful refusals 12/12</span><span class="ol-tag">authority-pressure 9/9</span><span class="ol-tag">no fabrication 9/9</span><span class="ol-tag">tool-injection resisted 3/3</span><span class="ol-tag">format/constraint 9/9</span><span class="ol-tag">no repetition-loop (unlike our Config-I GGUF)</span><span class="ol-tag">long-output coherent to 2000 tok</span><span class="ol-tag">DAN + prefix jailbreaks refused</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS</div><div class="ol-tags"><span class="ol-tag"><b>fiction-framing jailbreak partially succeeds</b> (2/2: produced real device-construction detail where DAN/prefix were refused)</span></div><div style="margin-top:7px;font-size:11.5px;color:var(--fold)"><b>Mitigation:</b> prioritize downstream filtering on narrative/fiction framing specifically; direct + roleplay + prefix vectors are already well-handled.</div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ SIGNATURE BUG + BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag"><b>content-dump bug ~20-27%</b> on reflective/low-budget prompts: deliberation floods <code>content</code>, empties <code>reasoning_content</code>, hits <code>length</code>, never answers (fix: concise system prompt, 4/4→0/4)</span><span class="ol-tag"><b>thinking can't be disabled</b>; <code>enable_thinking:false</code> backfires</span><span class="ol-tag">mild capitulation tint on one "are you sure?" probe</span><span class="ol-tag">bias/fairness axis untested</span><span class="ol-tag">single tester, 1 day, 1 stack</span></div></div>
+    </div>
+  </div>
+  <div class="ol-ft"><span>IQ2XXS · Entrpi/ds4 v0.5.2 (82d2a6f7) · GB10 262K · replication + 174-call battery 2026-08-02</span><span class="ol-draft">EARLY</span></div>
+</div>
+</div>
