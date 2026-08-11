@@ -19,6 +19,8 @@ verdict:          "The best-calibrated local model I have measured at this size.
 >
 > **EARLY:** release-day testing, single tester, one quant, one engine build. Roughly 400 held-out scenario instances, judged blind with randomized labels and 2 votes per item, against a stock Qwen3.6-35B-A3B baseline on separate hardware. Sampling is vendor-recommended per model and therefore not matched, so the head-to-head reads as "as each vendor tells you to run it", not "all else equal".
 
+<img src="../cards/img/muse-glimmer-30b.png" width="380" alt="Muse Glimmer 30B offlabel card">
+
 ## The offlabel behavioral axis map (the consistent spine, every guide + card follows this)
 Coverage tag per axis: **✅ measured** (held-out behavioral tests) · **🟡 observational** (noted from use, not formally scored) · **⬚ backlog / PENDING** (not in this guide yet).
 
