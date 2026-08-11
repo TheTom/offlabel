@@ -18,6 +18,7 @@ What's here now and what's next. offlabel guides are snapshots, not permanent ve
 | Qwopus-Coder | ⬚ held | confidentiality, needs owner OK + public/private call before it can ship publicly |
 | Qwen3.5-9B / stock Qwen3.6-35B-A3B | ⬚ planned | baseline behavioral data already exists (used as behavioral baselines) → stub guides |
 | Robustness-trained Gemma-4-12B variant (internal) | ⬚ planned | behavioral delta vs base already measured |
+| Muse Glimmer 30B (Meta) | ✅ done | release-day battery, ~400 held-out instances, 2 votes, vs stock Qwen3.6-35B-A3B. Includes a validated-and-REJECTED mitigation (§2b) and a 3-arm reasoning dose-response |
 | Future releases | ⬚ ongoing | add as tested: the point is to keep pace with launches |
 
 ## 2. Coverage: fill the ⬚ backlog axes
