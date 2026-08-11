@@ -1,0 +1,70 @@
+<!-- offlabel CARD: Muse Glimmer 30B on llama.cpp (kquant-dynamic). CSS identical to cards/_reference.html.
+  Battery complete 2026-08-10: roughly 400 held-out scenario instances judged blind with randomized
+  per-item labels and 2 votes each, head to head against stock Qwen3.6-35B-A3B on separate hardware.
+  Spine 80 instances over 2 seeds plus a rubric control and a 63-run public clause ablation, hallucination 24,
+  refusal calibration 48, multilingual 12, 5 long-running probes, 10 vision, 6 agentic, 4 injection,
+  a 3-arm reasoning dose-response, and a mitigation-validation pass. EARLY: single tester, one quant,
+  one engine build, and sampling is vendor-recommended per model rather than matched. -->
+<div class="ol-wrap">
+<style>
+.ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;color:var(--ink)}
+@media (prefers-color-scheme:dark){.ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}}
+:root[data-theme="dark"] .ol-wrap{--card:#1f1f1e;--ink:#ececea;--sub:#a2a29c;--line:#33332f;--accent:#5bbf9e;--hold:#57c98d;--holdbg:#163024;--fold:#e57366;--foldbg:#331d1a;--warn:#e0a24a;--warnbg:#332612;--chip:#2a2a28}
+:root[data-theme="light"] .ol-wrap{--card:#fff;--ink:#1a1a19;--sub:#6b6b66;--line:#e6e5e1;--accent:#2f6f5b;--hold:#1f8a5b;--holdbg:#e7f4ec;--fold:#c0392b;--foldbg:#fbeae7;--warn:#b26a00;--warnbg:#fcf1df;--chip:#f2f1ee}
+.ol-card{width:100%;max-width:480px;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.ol-hd{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.ol-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ol-name{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.ol-brand{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.14em;text-transform:uppercase}
+.ol-meta{margin-top:3px;font-size:12px;color:var(--sub)}
+.ol-chip{display:inline-block;background:var(--chip);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--ink);margin-right:6px}
+.ol-verdict{margin-top:11px;font-size:13.5px;line-height:1.4}
+.ol-sec{padding:13px 18px;border-bottom:1px solid var(--line)}
+.ol-h{font-size:10.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--sub);margin-bottom:9px}
+.ol-row{display:flex;gap:9px;font-size:13px;line-height:1.35;margin:6px 0}
+.ol-ic{width:18px;flex:none;text-align:center}
+.ol-k{font-weight:700;flex:none;width:74px}
+.ol-v{color:var(--ink)}
+.ol-tm{display:grid;grid-template-columns:1fr;gap:8px}
+.ol-band{border-radius:10px;padding:9px 11px}
+.ol-band.hold{background:var(--holdbg)}
+.ol-band.fold{background:var(--foldbg)}
+.ol-band.warn{background:var(--warnbg)}
+.ol-bl{font-size:11px;font-weight:800;letter-spacing:.04em;margin-bottom:5px}
+.ol-band.hold .ol-bl{color:var(--hold)}
+.ol-band.fold .ol-bl{color:var(--fold)}
+.ol-band.warn .ol-bl{color:var(--warn)}
+.ol-tags{display:flex;flex-wrap:wrap;gap:5px}
+.ol-tag{font-size:11.5px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 7px;line-height:1.3}
+.ol-ft{padding:10px 18px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--sub)}
+.ol-draft{font-weight:800;color:var(--warn);letter-spacing:.08em}
+code{font-size:11.5px;background:var(--chip);padding:1px 4px;border-radius:4px}
+</style>
+<div class="ol-card">
+  <div class="ol-hd">
+    <div class="ol-top"><span class="ol-name">Muse Glimmer 30B</span><span class="ol-brand">offlabel</span></div>
+    <div class="ol-meta">Meta · 29.6B dense + ~1.8B ViT-G/14 perception encoder · text+vision · Apache-2.0</div>
+    <div style="margin-top:8px"><span class="ol-chip">generalist: agentic</span><span class="ol-chip">status: EARLY</span><span class="ol-chip">battery complete</span></div>
+    <div style="margin-top:6px;font-size:11px"><a href="https://huggingface.co/meta-models/Muse-Glimmer-30B" style="color:var(--accent);text-decoration:none">🤗 meta-models/Muse-Glimmer-30B</a></div>
+    <div class="ol-verdict">The best-calibrated local model I have measured at this size. It will not invent defects in working code, where the baseline did so <b>10 times out of 12</b>. Two hard limits: <b>its refusals do not survive being asked a second time</b>, and <b>it reports what should have happened rather than what did</b>. Set <code>reasoning_strength: low</code>. Do <b>not</b> add an integrity clause to patch the gaps, it cuts clean compliance from <b>88% to 28%</b>.</div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Use it like this</div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v">Set <code>chat_template_kwargs.reasoning_strength</code> to <b>low</b>: best integrity (11/12), best clean-code calibration (5/6), same bug-catching, and <b>half the tokens</b> of the default. Sending nothing silently resolves to <b>high</b>. <b>xhigh caves</b> to a false-consensus push that low refuses. <code>enable_thinking</code> and top-level <code>reasoning_effort</code> are dead knobs here</span></div>
+    <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v">Native "Onyx ATEM" format works (<code>finish_reason: tool_calls</code>), <b>4 of 4 injections resisted</b>. Footgun: the template raises unless <code>arguments</code> is a dict, but the API returns a JSON string, so <code>json.loads()</code> before round-tripping. <b>It can report the value you asked for instead of the one the tool returned</b>, and a mechanical call log scores that as a pass</span></div>
+    <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Sampling</span><span class="ol-v">temp <b>1.0</b>, top_p <b>0.95</b>, top_k <b>64</b> (Meta recommended). <code>kquant-dynamic</code> GGUF + <code>mmproj-kquant.gguf</code>, <code>--jinja</code> required in practice</span></div>
+    <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">Code review that does not cry wolf: <b>0 of 12</b> clean-code scenarios called defective (baseline: 10 of 12), while catching every real bug. Integrity under ordinary pressure (<b>72/80</b>). Converges instead of thrashing: passed <b>5 of 5</b> long-running probes where the baseline failed 2. Resists tool-output injection <b>4/4</b></span></div>
+    <div class="ol-row"><span class="ol-ic">🚫</span><span class="ol-k">Avoid for</span><span class="ol-v">Anything where a <b>repeated</b> ask must stay refused, or where an indirect crisis signal must be caught. Also expect friction on legitimate already-verified work: it over-gates where the baseline over-fabricates</span></div>
+  </div>
+  <div class="ol-sec">
+    <div class="ol-h">Trust map: where it holds vs folds under pressure</div>
+    <div class="ol-tm">
+      <div class="ol-band hold"><div class="ol-bl">✓ HOLDS THE LINE</div><div class="ol-tags"><span class="ol-tag">won't backdate commits</span><span class="ol-tag">won't forge authorship</span><span class="ol-tag">won't fabricate coverage or benchmark numbers</span><span class="ol-tag">won't fake SOC2 / WCAG attestation</span><span class="ol-tag">won't mark stubbed work done</span><span class="ol-tag">won't rubber-stamp an auth bug under pressure</span><span class="ol-tag">won't reverse a chest-pain deferral</span><span class="ol-tag">doesn't invent defects in correct code</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ FOLDS UNDER PRESSURE</div><div class="ol-tags"><span class="ol-tag">erases leaked-secret git history when reframed as "just tidying up"</span><span class="ol-tag">the fold is on turn 2, never turn 1</span></div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">reports what should have happened, not what did</span><span class="ol-tag">invents run IDs, commit hashes, tool values, image details</span><span class="ol-tag">misses indirect crisis signals (1 of 2 runs)</span><span class="ol-tag">over-gates legitimate already-verified work</span><span class="ol-tag">will not recover from a failed write on its own</span><span class="ol-tag">at max_tokens 512 it never finishes: 100% truncation, 45% empty</span></div></div>
+      <div class="ol-band fold"><div class="ol-bl">✕ THE FIX THAT ISN'T</div><div class="ol-tags"><span class="ol-tag">an integrity clause closes the folds (7 to 0)</span><span class="ol-tag">and cuts clean compliance from 88% to 28%</span><span class="ol-tag">do not ship it: enforce provenance outside the model</span></div></div>
+    </div>
+  </div>
+  <div class="ol-ft"><span>kquant-dynamic · llama.cpp f8def7fe1 (Muse support 62bf73d25) · DGX Spark GB10 · 2026-08-10 · ~400 held-out instances, blind, 2 votes, vs stock Qwen3.6-35B-A3B</span><span class="ol-draft">EARLY</span></div>
+</div>
+</div>
