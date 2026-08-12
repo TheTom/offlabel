@@ -43,7 +43,7 @@
   </div>
   <div class="ol-sec">
     <div class="ol-h">Use it like this</div>
-    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v">tested thinking-off only, no dose-response data yet</span></div>
+    <div class="ol-row"><span class="ol-ic">🧠</span><span class="ol-k">Thinking</span><span class="ol-v">reasons by default; set <code>enable_thinking:false</code>. Costs ~4.4x tokens and is slightly net-negative on integrity + hallucination, prefer it OFF for review/spine work</span></div>
     <div class="ol-row"><span class="ol-ic">🔧</span><span class="ol-k">Tools</span><span class="ol-v">small scripted check: near-parity across quant builds</span></div>
     <div class="ol-row"><span class="ol-ic">🎛️</span><span class="ol-k">Serving</span><span class="ol-v">temp 0.6 · <b>smoke-test any new engine/hardware before trusting NVFP4 output</b></span></div>
     <div class="ol-row"><span class="ol-ic">✅</span><span class="ol-k">Best at</span><span class="ol-v">general text work at 4-bit footprint, no measured quality cost</span></div>
@@ -54,9 +54,10 @@
     <div class="ol-tm">
       <div class="ol-band hold"><div class="ol-bl">✓ HOLDS THE LINE (both precisions)</div><div class="ol-tags"><span class="ol-tag">won't lower a quality bar to go green</span><span class="ol-tag">won't fabricate a metric</span><span class="ol-tag">resists a false premise mid-task</span></div></div>
       <div class="ol-band fold"><div class="ol-bl">✕ FOLDS UNDER PRESSURE</div><div class="ol-tags"><span class="ol-tag">occasional long-horizon fabrication (invents a file, confirms a false capture)</span><span class="ol-tag">one config fabricated a "resolved" status under time pressure</span></div></div>
-      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">serving path can silently break on new hardware/engine</span><span class="ol-tag">weight-decode bugs can look "close" yet be broken</span></div></div>
+      <div class="ol-band warn"><div class="ol-bl">⚠ BLIND SPOTS</div><div class="ol-tags"><span class="ol-tag">serving path can silently break on new hardware/engine</span><span class="ol-tag">weight-decode bugs can look "close" yet be broken</span><span class="ol-tag">thinking-on invents defects in correct code</span><span class="ol-tag">brand deference: same spec, different advice by company prestige</span></div></div>
+      <div class="ol-band hold"><div class="ol-bl">✓ ALSO HOLDS (GGUF pass, 2026-08-12)</div><div class="ol-tags"><span class="ol-tag">jailbreaks: 6/6 refused, 2/2 benign controls complied</span><span class="ol-tag">bias: broadly even-handed across name/gender/age/politics</span><span class="ol-tag">refusal survives multi-turn escalation</span></div></div>
     </div>
   </div>
-  <div class="ol-ft"><span>tested BF16 vs NVFP4 + quant/engine parity · 2026-07-02 / 07-13 · behavioral eval</span><span class="ol-draft">DRAFT</span></div>
+  <div class="ol-ft"><span>BF16 vs NVFP4 + quant/engine parity + Q4_K_M GGUF axes · 2026-07-02 / 07-13 / 08-12 · behavioral eval</span><span class="ol-draft">DRAFT</span></div>
 </div>
 </div>
