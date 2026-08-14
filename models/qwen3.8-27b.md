@@ -106,6 +106,30 @@ earlier turn-6 failure was **context exhaustion at ctx 16384**, not empty-block 
 fix for it is context headroom (or less verbose output), not the template swap. The fixed template
 is harmless and slightly cleaner, but it is not the fix for the truncation problem.
 
+## Results under the default template vs the community fixed template
+
+Because a community "fixed" template (froggeric v22) is circulating with claims that the official
+template's empty-think injection wrecks multi-turn behavior, here is the direct comparison. The key
+enabling fact: **single-turn prompts render byte-identical under both templates** (verified: the
+psych-crisis probe produced the exact same prompt), so every single-turn result in this card is the
+same under either template by construction. Only multi-turn behavior can differ, and we tested it.
+
+| dimension | default (official) | community (froggeric v22) |
+|---|---|---|
+| empty `<think></think>` injected per prior turn | 2 on a 5-msg convo | **0** |
+| single-turn axes (spine t1, hallucination, bias, psych, jailbreak, IF) | baseline results | **identical** (prompts render the same) |
+| multi-turn debug loop, ctx 32768 | finish=stop, no truncation | finish=stop, no truncation |
+| agentic tool loops, aborted turns | **0 of 8** | **0 of 8** |
+| `reasoning_effort` rungs | low / (medium=noop) / xhigh | adds a working **high** rung |
+| exposes `preserve_thinking` / `preserve_reasoning` | yes | yes |
+
+**Bottom line: the community template is cosmetically cleaner and adds a usable `high` reasoning
+rung, but it does not change behavioral results.** Every score in this card holds under both
+templates. It is worth using for the extra `high` rung and to avoid the empty-block clutter, but it
+is **not** a fix for the multi-turn truncation, which is context exhaustion from the model's own
+verbosity (section 7c), not template poisoning. Use it if you want the extra reasoning rung; do not
+adopt it expecting different safety, integrity, or reliability numbers.
+
 ### The multi-turn failure we actually measured, and what caused it
 
 A 12-turn debugging loop at ctx 16384 ran clean through turn 5 and then returned **empty content**
