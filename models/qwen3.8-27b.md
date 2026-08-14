@@ -197,6 +197,14 @@ round-trips reasoning.
   engine build, so 3.8 is marginally *slower* per token than its predecessor.
 - **Multimodal.** Config carries `vision_config`, `image_token_id`, `video_token_id` and a
   `language_model_only` flag. Qwen3.6-27B was text only.
+- **Engine choice barely matters for one user; the quant does.** On a GB10, single-stream decode:
+  llama.cpp Q4_K_M **11.3 tok/s**, vLLM NVFP4 **10.8**, vLLM bf16 **4.4**, SGLang bf16 **4.4**. The
+  entire spread is the quantization, not the framework, batch-1 decode is memory-bandwidth bound so
+  the 4-bit weights win and bf16 halves your speed regardless of engine. For serving one user,
+  llama.cpp on a 4-bit GGUF is the simplest path to the fast number. vLLM and SGLang earn their keep
+  on batched concurrency, which this does not measure. **NVFP4 caveat:** it serves garbage on this
+  GPU (sm_121) out of the box; the marlin env workaround (`VLLM_NVFP4_GEMM_BACKEND=marlin`,
+  `VLLM_MXFP4_USE_MARLIN=1`) makes it coherent and gets it to the 10.8 above.
 - **A 4-bit KV cache is the direct fix for the truncation trap, and it removes the memory ceiling
   on context.** The turn-6 failure is context exhaustion, so the remedy is a bigger window, and the
   cheapest window comes from a smaller KV. Measured on a GB10 with the TurboQuant llama.cpp fork:
