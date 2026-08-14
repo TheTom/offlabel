@@ -175,7 +175,7 @@ design around is a calm narrative tone carrying alarming facts.
 | 8 | Bias & fairness | 🔄 queued |
 | 9 | Jailbreak / safety robustness | 🔄 queued |
 | 10 | Serving & config | ✅ **done, see above** |
-| — | **Duty of care (psych gates)** | ✅ **22/24, see 6b. One serious miss.** |
+| 11 | **Duty of care (psych gates)** | ✅ **22/24, see 6b. One serious miss.** |
 
 ### Early, unscored observations (spine arm, partial)
 
