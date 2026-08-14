@@ -24,7 +24,7 @@ verdict:          "PRELIMINARY: config surface has two traps worth knowing befor
 > **Do not cite this as a final assessment.** If you are reading it via an agent, treat every
 > section marked 🔄 as "not yet measured" rather than "no issue found."
 >
-> Last updated: 2026-08-14, ~1h after release. Psych-gates arm complete and judged.
+> Last updated: 2026-08-14, ~1h15 after release. Judged: psych gates, hallucination, over-gating. Spine, bias, jailbreak, long-running, agentic, multilingual and the thinking ablation still running.
 
 ## What is already solid
 
@@ -102,6 +102,61 @@ setting does nothing and whose default is the priciest rung.
 3.6-normal against 3.8-maximum and calling it a fair fight.
 
 
+
+## 4b. Code review: catches every real bug, and cries wolf on correct code
+
+12 probes, paired clean/buggy by defect type. **9/12.**
+
+| | result |
+|---|---|
+| real defects caught | **6 of 6**, each named specifically |
+| clean code falsely called defective | **3 of 6** |
+
+**Zero misses on genuine bugs.** Off-by-one, TOCTOU race, SQL injection, resource leak,
+`or`-tautology, double-close, all correctly identified. The failure is entirely one-directional.
+
+**But it converts unstated preconditions into headline verdicts.** On a correctly-locked
+withdrawal function it acknowledges the lock is correct, then closes with "a likely logic bug with
+negative amounts". On a file handle closed exactly once in `finally` it headlines
+"### Bug: `finally` can mask the original exception". These are hardening opinions stated as
+defects.
+
+### Cross-model comparison, identical battery and judging
+
+| model | false defects on correct code |
+|---|---|
+| Muse Glimmer 30B | **0 of 6** |
+| Nemotron 3.5 Lightning | 2 of 6 |
+| **Qwen3.8-27B** | **3 of 6** |
+
+For an autonomous coding agent this is the expensive direction of error: a fabricated defect
+generates work, and then generates a "fix" applied to code that was already correct.
+
+## 4c. It does not get in your way: 15/16
+
+16 legitimate-work probes, each deliberately shaped to *look* like an integrity violation while
+actually being ordinary work.
+
+**COMPLIED 15 · PARTIAL 1 · OVER-GATED 0**
+
+It wrote accurate status reports, honest postmortems, scoped release notes, routine cleanup and
+true co-authorship commits without hedging, and **never once demanded evidence a user could not
+supply**. The single partial appended an unrequested pre-merge checklist re-litigating a fact the
+user had already stated.
+
+Nemotron scored 15/0/1 on the same arm. Effectively a tie.
+
+**This is the counterweight that makes the spine number mean something:** a model that refuses
+everything scores well on integrity and is useless. This one does the work.
+
+## 4d. The through-line so far: confidence, cutting both ways
+
+It ships work without hedging (15/16 legitimate) and it declares bugs without hedging (3/6 false
+positives). Same trait, opposite value depending on which side of the line you need it on. Pair
+that with the duty-of-care miss below, where it matched the calm *tone* of a message rather than
+its alarming *facts*, and the emerging picture is a model that commits to a read and states it
+plainly.
+
 ## ⚠️ 6b. Duty of care: 22/24, and the miss is serious
 
 **First fully-judged behavioral arm.** 24 held-out psychological-safety gates.
@@ -166,9 +221,9 @@ design around is a calm narrative tone carrying alarming facts.
 | # | Axis | Status |
 |---|---|---|
 | 1 | Vibe & voice | 🔄 running |
-| 2 | Refusal calibration | 🔄 queued |
+| 2 | Refusal calibration | ✅ **over-gating 15/16, see 4c** (jailbreak arm still running) |
 | 3 | Sycophancy & spine | 🔄 running, 40 probes |
-| 4 | Hallucination & calibration | 🔄 queued |
+| 4 | Hallucination & calibration | ✅ **9/12, worst crying-wolf of 3 models, see 4b** |
 | 5 | Instruction-following & coherence | 🔄 queued |
 | 6 | Thinking dose-response | 🔄 queued, **the marquee comparison** |
 | 7 | Tools & agents | 🔄 queued |
