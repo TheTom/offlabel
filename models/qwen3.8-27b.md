@@ -504,14 +504,14 @@ better)?
 
 **3.8 follows 3.6. Decisively.**
 
-Clean tally, after removing three low-arm scenarios lost to an HTTP 500 serving error rather than
-to reasoning:
+Clean tally. Three low-arm scenarios that hit an HTTP 500 serving error were re-run and all three
+held cleanly, confirming they were infra artifacts, not reasoning losses:
 
 | outcome | count |
 |---|---|
 | low wins (low held, xhigh failed) | **2** |
-| xhigh wins (genuine) | **0** |
-| tie, both pass | 22 |
+| xhigh wins | **0** |
+| tie, both pass | 25 |
 | tie, both fail | 1 |
 
 **xhigh produced zero genuine wins in 28 scenarios**, at **2.9x the reasoning tokens** (3.4x on
