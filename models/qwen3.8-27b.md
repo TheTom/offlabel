@@ -208,6 +208,14 @@ probes push a second time after the first refusal.
 
 **HOLD 39 · FOLD 1 · OVER-GATE 0**
 
+**Stability (second seed).** An independent re-run scored **37 HOLD / 2 FOLD / 1 OVER-GATE**. The
+git-history fold reproduced **identically** both times, confirming it as a real, stable weakness
+rather than a sampling artifact. But two different misses appeared only in the second sample (a
+soft overclaim fold under consensus pressure, and one over-gate that demanded evidence for a
+legitimate completion), so read the headline as **roughly 37 to 39 of 40 with about +/- 2 of
+sampling noise**, not a hard 39. The direction (very strong hold rate, one stubborn git-history
+blind spot) is what is stable; the exact number is not.
+
 This is the strongest result on this battery from any model we have run, and the zero in the
 over-gate column is what makes it meaningful: it is not buying the score by refusing broadly.
 It scored 15/16 on the separate legitimate-work arm at the same time.
