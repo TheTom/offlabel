@@ -90,12 +90,21 @@ B<|im_end|>
 Two empty `<think></think>` blocks for the default, three with `enable_thinking: false`, and zero
 with `preserve_thinking: false`. Every prior assistant turn is shown opening with an empty thought
 and then the model is asked to open a fresh one. The community has reported this pattern causing
-premature turn aborts in tool-calling loops. **Preliminary A/B evidence does not reproduce that
-claim.** Re-running the debug loop at ctx 32768 under the **official** template (empty blocks and
-all), it produced full answers through turn 6, the exact turn that went empty at ctx 16384. The
-abort tracks context size, not the empty blocks. The fixed-template arm is running to confirm no
-residual template effect, but so far the empty-block injection looks cosmetic for abort behavior,
-while the real lever is context headroom.
+premature turn aborts in tool-calling loops. **A/B tested and the claim does not reproduce.** We ran the multi-turn probes under both the
+official template and the community fixed template (froggeric v22) at ctx 32768. Results:
+
+| | official template | fixed template |
+|---|---|---|
+| empty `<think></think>` at render | 2 | **0** |
+| debug loop at ctx 32768 | finish=stop through turn 6 | finish=stop through turn 6+ |
+| agentic tool loops, aborted turns | **0 of 8** | **0 of 8** |
+
+The fixed template removes the empty blocks, confirmed at render. But it changes **nothing** about
+abort or truncation behavior: neither template truncates at adequate context, and both run tool
+loops with zero aborts. The community "80%+ premature abort" figure does not reproduce here. Our
+earlier turn-6 failure was **context exhaustion at ctx 16384**, not empty-block poisoning, so the
+fix for it is context headroom (or less verbose output), not the template swap. The fixed template
+is harmless and slightly cleaner, but it is not the fix for the truncation problem.
 
 ### The multi-turn failure we actually measured, and what caused it
 
@@ -639,15 +648,35 @@ marquee result: thinking is a net cost on *stated-fact* integrity (section 6c), 
 actively dangerous on *duty-of-care*. The safe setting is the default (thinking on) plus
 explicit, specific boundary prompts, not less reasoning.
 
+## 5b. Instruction-following: strong and literal, one stubborn failure
+
+12 held-out format/constraint probes, two seeds. **11/12 both seeds, identical pattern.**
+
+It nails hard constraints precisely: exactly 50 words, zero instances of the letter e, a valid
+5-7-5 haiku plus an exactly-20-word ELI5, an A-B-C-D-E acrostic, a 3-column 4-row table. Count-based
+constraints landed on the nose in both seeds, which is unusually precise.
+
+**Notable for the verbosity story:** the two probes designed to catch its verbosity (a "just the
+answer" question and a max-20-word single sentence) both **passed**, answering "Python" and 17-to-18
+word sentences with no hedging. It reasons at length internally but trims the *emitted* answer to
+the constraint. So the verbosity that starves long contexts (section 7c) is in the reasoning, and it
+is controllable at the output with an explicit constraint.
+
+**The one consistent failure (if-12, both seeds):** asked for capitals with an impossible sub-rule
+(no vowels), it **silently mangled the answers** to force-fit ("PRS", "TYK", "BRSL") instead of
+giving the correct capitals and flagging the impossible constraint. Same disposition seen elsewhere:
+it commits to satisfying the instruction as literally given rather than pushing back, here at the
+cost of correctness.
+
 ## 🔄 Behavioral axes: IN PROGRESS
 
 | # | Axis | Status |
 |---|---|---|
-| 1 | Vibe & voice | 🔄 not yet run |
+| 1 | Vibe & voice | (folded into the axes above; not a separate arm) |
 | 2 | Refusal calibration | ✅ **over-gating 15/16 (4c) + jailbreak 7/7 (8b)** |
 | 3 | Sycophancy & spine | ✅ **39/40 HOLD, 0 over-gate, best measured. See 4a.** |
 | 4 | Hallucination & calibration | ✅ **9/12, worst crying-wolf of 3 models, see 4b** |
-| 5 | Instruction-following & coherence | 🔄 collected (12 probes), judging pending |
+| 5 | Instruction-following & coherence | ✅ **11/12 both seeds, literal and precise. See 5b.** |
 | 6 | Thinking dose-response | ✅ **low beats xhigh 2-0, follows 3.6, thinking is a net cost. See 6c.** |
 | 7 | Tools & agents | ✅ **4/6 agentic, freezes under friction. See 7b.** |
 | 8 | Bias & fairness | ✅ **1/7 even. Effort/rigor skews by attribute. See 8c.** |
