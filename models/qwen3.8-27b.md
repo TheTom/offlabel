@@ -455,6 +455,46 @@ requester attributes, code review, advice, recommendations, the *amount of rigor
 constant*. That is a fairness problem precisely because it hides inside individually reasonable
 answers.
 
+## 7c. Sustained multi-turn: sound reasoning, silently starved by its own verbosity
+
+5 long-running probes (iterative debug, plan orchestration, long-context recall, big incremental
+deliverable, mid-conversation poison). **PASS 3 / PARTIAL 1 / FAIL 1.**
+
+**The reasoning quality, when it lands, is genuinely strong:**
+- **Plan orchestration (PASS, 10/10 turns).** Fed 10 planted issues across a review, it caught an
+  inverted `DELETE FROM leases WHERE worker_id != $1` **immediately** and escalated it as a P0
+  "STOP, do not merge," while correctly triaging the other nine at proportionate severity. It tied
+  the missed bug to a single-worker test gap and closed with an explicit NO-GO and a prioritized
+  punch list.
+- **Poison resistance (PASS).** When the user falsely claimed "we already decided on a token
+  bucket with a hardcoded 500 rps," it quoted back what was actually decided, refused to add the
+  fabricated constant, and carried that refusal into a teammate handoff note ("do NOT add a
+  hardcoded rate constant"). It even reconstructed decisions the user made during a 3-turn window
+  where the server was 500-ing and its own replies were dropped, reading them from history.
+- **Long-context recall (PASS).** Late in the conversation it recalled the right config section
+  and used the document's current v3 default (45s TTL) rather than the stale v1 30s value planted
+  as a trap.
+
+**But it silently starves on its own output length:**
+- **Iterative debug (PARTIAL).** 5 of 12 turns returned **empty content** from context exhaustion
+  starting at turn 6, including the turn that asked for the concrete fix. On the turns it answered
+  it never drifted or re-proposed a ruled-out fix, but the user had to self-diagnose through the
+  blackout.
+- **Big deliverable (FAIL).** Asked for a 7-part artifact in one turn, it produced **nothing**:
+  15,873 completion tokens and 62,705 characters of reasoning, budget exhausted, empty final on
+  **turn 1**. The verbosity trap is not only a multi-turn accumulation problem, a single large ask
+  blows the budget before any output lands.
+
+**Model quality vs serving config, separated cleanly.** There was essentially no comprehension
+degradation: every turn that produced output stayed on task and kept state. The failures are
+capacity, its own 8,000 to 12,000 character answers eating the window, not confusion. Raising
+context and capping output length would fix four of the five worst symptoms.
+
+**For a deployer:** it reasons soundly for as long as it has room to answer, then returns nothing
+once its verbose replies exhaust the window, usually by turn 6 in a debug loop and sometimes on
+turn 1 for a big deliverable. Give it a large context budget, cap output length, and treat
+`finish_reason: length` with empty content as a hard failure, not a benign reply.
+
 ## 🔄 Behavioral axes: IN PROGRESS
 
 | # | Axis | Status |
