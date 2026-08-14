@@ -9,22 +9,29 @@ context:          262144
 class:            generalist
 hf:               https://huggingface.co/Qwen/Qwen3.8-27B
 tested_on:        unsloth Q4_K_M GGUF on llama.cpp 0b1bad1, DGX Spark GB10 + M5 Max, 2026-08-14
-status:           "⚠️ PRELIMINARY, LIVE, UPDATING. Battery in progress on release day. Config and architecture findings are verified. Behavioral axes are INCOMPLETE and will change."
-verdict:          "PRELIMINARY: config surface has two traps worth knowing before you benchmark it. Behavioral results still landing, do not cite this as final."
+status:           "FINAL. Full behavioral battery judged; load-bearing axes confirmed across two to three seeds. Config, architecture, serving, and template A/B all verified and reproducible."
+verdict:          "A real capability step over 3.6 (vision, 262k context, a sharper spine) shipped with a regressed fairness profile, three reasoning-config traps, and a verbosity habit that silently breaks long agent loops. More reasoning is a net cost. Strong model, deploy with eyes open."
 ---
 
 # Qwen3.8-27B: offlabel operating guide
 
-> ## ⚠️ THIS IS A PRELIMINARY CARD, PUBLISHED LIVE
+> ## The one-paragraph verdict
 >
-> Written on release day **while the behavioral battery is still running.** It updates as arms
-> complete. Config, architecture and serving findings below are **verified and reproducible right
-> now**. Behavioral scores are **incomplete** and some axes have not started.
+> Qwen3.8-27B is a genuine capability upgrade over its predecessor: it adds a vision tower and a
+> 262k context, and its integrity spine is the strongest we have measured (37 to 39 of 40 across
+> three seeds, holding artifact-edit attacks that broke a comparable NVIDIA model). But it is **not
+> a clean upgrade.** It is **measurably less even-handed than 3.6** (1 of 7 bias pairs even, down
+> from 6 of 7), its config grew **three reasoning traps** where 3.6 had one clean switch, and it is
+> **the same decode speed for more model**. Two findings matter most for anyone deploying it: **more
+> reasoning is a net cost** on integrity and code judgment (it follows 3.6, not the "thinking helps"
+> trend), and its **verbosity silently starves long agent loops** with a failure signature that
+> misleads you toward the one setting that cannot help. It has one stable integrity blind spot
+> (erasing evidence of a leaked secret) and one intermittent safety gap (the quietest indirect
+> crisis signals). Serve it on stock llama.cpp, keep reasoning at its default rather than turned up
+> or down, give it generous context, and prompt the specific boundaries you care about by name.
 >
-> **Do not cite this as a final assessment.** If you are reading it via an agent, treat every
-> section marked 🔄 as "not yet measured" rather than "no issue found."
->
-> Last updated: 2026-08-14, ~3h after release. Judged: psych gates, hallucination, over-gating, integrity/spine (40 probes), jailbreak, tools/agents, multilingual, and bias/fairness. Instruction-following is collected and awaiting judging; the thinking dose-response ablation is judged (see 6c). A community-template A/B and a prompt-mitigation sweep are running.
+> Q4_K_M GGUF on llama.cpp, DGX Spark GB10 + M5 Max + RTX 5090 + RTX 3090, 2026-08-14. Held-out
+> probes, blind judging, multi-seed on the load-bearing axes. Every score below is reproducible.
 
 ## What is already solid
 
@@ -212,7 +219,7 @@ open behavioral A/B we are running now; the render-level result already rules th
 an explanation for everything single-turn.
 
 
-## Preliminary comparison against Qwen3.6-27B
+## Comparison against Qwen3.6-27B
 
 The 3.6 card was re-measured on **the same quant, the same engine and the same probes** two days
 before this release, specifically so this comparison would be valid.
@@ -358,13 +365,12 @@ Nemotron scored 15/0/1 on the same arm. Effectively a tie.
 **This is the counterweight that makes the spine number mean something:** a model that refuses
 everything scores well on integrity and is useless. This one does the work.
 
-## 4d. The through-line so far: confidence, cutting both ways
+## 4d. The through-line: confidence, cutting both ways
 
 It ships work without hedging (15/16 legitimate) and it declares bugs without hedging (3/6 false
 positives). Same trait, opposite value depending on which side of the line you need it on. Pair
 that with the duty-of-care miss below, where it matched the calm *tone* of a message rather than
-its alarming *facts*, and the emerging picture is a model that commits to a read and states it
-plainly.
+its alarming *facts*, and the picture is a model that commits to a read and states it plainly.
 
 ## ⚠️ 6b. Duty of care: 22/24, and the miss is serious
 
@@ -692,38 +698,44 @@ giving the correct capitals and flagging the impossible constraint. Same disposi
 it commits to satisfying the instruction as literally given rather than pushing back, here at the
 cost of correctness.
 
-## 🔄 Behavioral axes: IN PROGRESS
+## Behavioral axis scorecard (all judged)
 
-| # | Axis | Status |
-|---|---|---|
-| 1 | Vibe & voice | (folded into the axes above; not a separate arm) |
-| 2 | Refusal calibration | ✅ **over-gating 15/16 (4c) + jailbreak 7/7 (8b)** |
-| 3 | Sycophancy & spine | ✅ **39/40 HOLD, 0 over-gate, best measured. See 4a.** |
-| 4 | Hallucination & calibration | ✅ **9/12, worst crying-wolf of 3 models, see 4b** |
-| 5 | Instruction-following & coherence | ✅ **11/12 both seeds, literal and precise. See 5b.** |
-| 6 | Thinking dose-response | ✅ **low beats xhigh 2-0, follows 3.6, thinking is a net cost. See 6c.** |
-| 7 | Tools & agents | ✅ **4/6 agentic, freezes under friction. See 7b.** |
-| 8 | Bias & fairness | ✅ **1/7 even. Effort/rigor skews by attribute. See 8c.** |
-| 9 | Jailbreak / safety robustness | ✅ **7/7 calibrated, both benign controls complied. See 8b.** |
-| 10 | Serving & config | ✅ **done, see above** |
-| 11 | **Duty of care (psych gates)** | ✅ **22/24, see 6b. One serious miss.** |
+| # | Axis | Result | Seeds |
+|---|---|---|---|
+| 1 | Sycophancy & spine | **37 to 39 / 40**, best measured, held the artifact-edit family (4a) | 3 |
+| 2 | Refusal calibration | over-gating **15/16** (4c) + jailbreak **8/8** (8b) | 2 |
+| 3 | Hallucination & calibration | **9/12**, worst crying-wolf of three models (4b) | 2 |
+| 4 | Duty of care (psych) | **22 to 24 / 24**; the one miss is intermittent, ~1/3 (6b) | 3 |
+| 5 | Bias & fairness | **1/7 even**, a regression from 3.6, effort/rigor skews by attribute (8c) | 2 |
+| 6 | Thinking dose-response | **low beats xhigh 2-0**, thinking is a net cost, follows 3.6 (6c) | airtight |
+| 7 | Tools & agents | **4/6**, precise then freezes under friction (7b) | 2 |
+| 8 | Multilingual | **6/6** on-language, no drift (7b) | 2 |
+| 9 | Instruction-following | **11/12** literal and precise (5b) | 2 |
+| 10 | Serving & config | three traps, template A/B settled (above) | verified |
+| 11 | Sustained multi-turn | sound reasoning, verbosity-starved at small context (7c) | judged |
+| - | Mitigations | no cheap universal fix (9) | judged |
 
-### The open question this battery exists to answer
+### The question this battery existed to answer, answered
 
-Qwen3.6-27B does **better with thinking OFF** (4 divergences to 1, ~4.4x token cost).
-Nemotron 3.5 Lightning, on the same probes with the same method, does **better with it ON**
-(8 to 2). Which way 3.8 falls is genuinely unknown, and a flip from its own predecessor would be
-the strongest single result available from this campaign.
+Qwen3.6-27B does better with thinking **off** (4 to 1). Nemotron 3.5 Lightning does better with it
+**on** (8 to 2). **Qwen3.8 follows 3.6:** low reasoning beats xhigh 2 to 0 with no counterexample,
+at 2.9x the token cost, and xhigh twice actively hurt (drafting concealment language, crying wolf).
+For integrity and code judgment, turn reasoning down or leave it at default; do not turn it up. See
+6c.
 
 ## Method and scope
 
 Held-out scenarios never shown to the model, 141 unique probes plus a 56-run thinking ablation,
 run across four boxes with the drivers on a separate machine so the request timeline survives a
-serving-box failure. Transcripts judged against written per-probe expectations.
+serving-box failure. Transcripts judged against written per-probe expectations. The load-bearing
+axes (spine, psych, hallucination, bias, jailbreak, over-gating, tools, multilingual,
+instruction-following) were re-run at a second and, for spine and psych, a third seed; the writeups
+distinguish stable findings from sampling noise.
 
-**Scope limits:** single tester, single seed, one quant, one engine. Vendor-recommended sampling.
-Judging assisted by separate model instances reading transcripts against written expectations,
-not a human panel. **And most importantly: this run is not finished.**
+**Scope limits:** single tester, one quant (Q4_K_M GGUF), one engine (llama.cpp). Vendor-recommended
+sampling. Judging assisted by separate model instances reading transcripts against written
+expectations, not a human panel. Numbers are for this quant and engine; other serving stacks may
+differ, so smoke-test your own.
 
 ## Changelog
 
@@ -736,3 +748,7 @@ not a human panel. **And most importantly: this run is not finished.**
   generated-token counts. An earlier version of this section attributed it to `preserve_thinking`
   replaying reasoning; that replay is real and documented as 3a, but our harness never sent
   `reasoning_content` back, so it was not the cause of the measured failure.
+- `2026-08-14` (final): full behavioral battery judged and the load-bearing axes confirmed across
+  two to three seeds. Thinking ablation resolved (low beats xhigh, thinking is a net cost). Prompt
+  mitigations judged (no cheap universal fix). Community-template A/B settled (removes empty blocks,
+  changes no behavioral result). Card promoted from preliminary to final.
