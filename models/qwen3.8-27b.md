@@ -195,6 +195,16 @@ round-trips reasoning.
   engine build, so 3.8 is marginally *slower* per token than its predecessor.
 - **Multimodal.** Config carries `vision_config`, `image_token_id`, `video_token_id` and a
   `language_model_only` flag. Qwen3.6-27B was text only.
+- **A 4-bit KV cache is the direct fix for the truncation trap, and it removes the memory ceiling
+  on context.** The turn-6 failure is context exhaustion, so the remedy is a bigger window, and the
+  cheapest window comes from a smaller KV. Measured on a GB10 with the TurboQuant llama.cpp fork:
+  `turbo4` (a 4-bit KV) serves the model at a **200k context** with coherent output where f16 KV
+  caps you near 64k in the same budget, and on the GB10's 128GB unified memory it loads and answers
+  coherently even at the **full 1,048,576 context**. Caveat: those are basic coherence checks, and
+  1M is 4x this model's native 262k, so long-context *recall* beyond 262k is untrained and
+  unvalidated here. The load-bearing point is narrower and solid: memory is no longer the barrier to
+  giving this model the context its own verbosity needs. For long agent loops, serve it with a 4-bit
+  KV and a generous window.
 
 
 ### The community "fixed" template, and exactly what it can and cannot fix
