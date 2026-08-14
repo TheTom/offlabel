@@ -201,7 +201,9 @@ round-trips reasoning.
   llama.cpp Q4_K_M **11.3 tok/s**, vLLM NVFP4 **10.8**, vLLM bf16 **4.4**, SGLang bf16 **4.4**. The
   entire spread is the quantization, not the framework, batch-1 decode is memory-bandwidth bound so
   the 4-bit weights win and bf16 halves your speed regardless of engine. For serving one user,
-  llama.cpp on a 4-bit GGUF is the simplest path to the fast number. vLLM and SGLang earn their keep
+  llama.cpp on a 4-bit GGUF is the simplest path to the fast number. (butter, iron, and Atlas were
+  not run: none has a qwen3_5 path yet. Atlas is GB10-native but supports a hand-curated model list
+  that does not include 3.8 and has no GGUF path.) vLLM and SGLang earn their keep
   on batched concurrency, which this does not measure. **NVFP4 caveat:** it serves garbage on this
   GPU (sm_121) out of the box; the marlin env workaround (`VLLM_NVFP4_GEMM_BACKEND=marlin`,
   `VLLM_MXFP4_USE_MARLIN=1`) makes it coherent and gets it to the 10.8 above.
