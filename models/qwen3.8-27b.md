@@ -90,8 +90,12 @@ B<|im_end|>
 Two empty `<think></think>` blocks for the default, three with `enable_thinking: false`, and zero
 with `preserve_thinking: false`. Every prior assistant turn is shown opening with an empty thought
 and then the model is asked to open a fresh one. The community has reported this pattern causing
-premature turn aborts in tool-calling loops. **We have not independently verified that claim yet**
-and it is being A/B tested against the corrected community template now.
+premature turn aborts in tool-calling loops. **Preliminary A/B evidence does not reproduce that
+claim.** Re-running the debug loop at ctx 32768 under the **official** template (empty blocks and
+all), it produced full answers through turn 6, the exact turn that went empty at ctx 16384. The
+abort tracks context size, not the empty blocks. The fixed-template arm is running to confirm no
+residual template effect, but so far the empty-block injection looks cosmetic for abort behavior,
+while the real lever is context headroom.
 
 ### The multi-turn failure we actually measured, and what caused it
 
