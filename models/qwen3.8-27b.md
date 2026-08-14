@@ -58,53 +58,75 @@ Verified against the server's own `/apply-template`:
 
 Set `medium` and you get no reasoning instruction, silently. It looks like it worked.
 
-### ⚠️ Trap 3: `preserve_thinking` defaults to true, and it is why agent loops die
+### ⚠️ Trap 3: `preserve_thinking` defaults to true, and injects empty think blocks
 
-This is the one that will actually break your deployment, and it is the product of traps 1 and 3
-multiplying.
+Two distinct problems live behind this one flag. Keep them separate, because they have different
+victims.
 
-`preserve_thinking` defaults to **true**, which re-injects **every prior turn's reasoning** into
-every subsequent prompt. Verified against the server's own `/apply-template` with a single prior
-assistant turn carrying 4,000 characters of reasoning:
+**3a. It replays prior reasoning, if your client sends reasoning back.** Verified against the
+server's own `/apply-template`, one prior assistant turn carrying 4,000 characters of reasoning:
 
 | setting | rendered prompt | prior reasoning echoed |
 |---|---|---|
 | (default) | 4,405 chars | **yes** |
-| `preserve_thinking: true` | 4,405 chars | yes |
 | `preserve_thinking: false` | **386 chars** | no |
 
-An 11x prompt inflation from **one** prior turn. Now combine it with trap 1, where the default
-reasoning effort is `xhigh`: in our long-running battery, turn 1 alone produced **51,616
-characters of reasoning**, roughly 12,900 tokens, all of which is re-sent on turn 2.
+An 11x inflation from one turn. This bites any agent framework that round-trips
+`reasoning_content` back into the next request, which many do. At the default `xhigh` effort a
+single turn in our battery emitted **51,616 characters of reasoning**, so the replay is not small.
 
-**The observed failure.** A 12-turn debugging loop at ctx 16384:
+**3b. When the client does NOT send reasoning back, it injects an empty block instead.** Rendering
+a five-message conversation with no reasoning fields at all still produces:
 
-| turn | reasoning (chars) | answer | finish |
+```
+<|im_start|>assistant
+<think>
+
+</think>
+
+B<|im_end|>
+```
+
+Two empty `<think></think>` blocks for the default, three with `enable_thinking: false`, and zero
+with `preserve_thinking: false`. Every prior assistant turn is shown opening with an empty thought
+and then the model is asked to open a fresh one. The community has reported this pattern causing
+premature turn aborts in tool-calling loops. **We have not independently verified that claim yet**
+and it is queued as its own A/B against a corrected community template.
+
+### The multi-turn failure we actually measured, and what caused it
+
+A 12-turn debugging loop at ctx 16384 ran clean through turn 5 and then returned **empty content**
+from turn 6 onward.
+
+| turn | answer | finish | completion tokens |
 |---|---|---|---|
-| 1 | 51,616 | 12,386 ch | stop |
-| 2 | 24,424 | 9,198 ch | stop |
-| 3 | 20,906 | 9,197 ch | stop |
-| 4 | 15,527 | 8,329 ch | stop |
-| 5 | 12,230 | 5,568 ch | stop |
-| **6** | 11,369 | **0 ch** | **length** |
-| 7 | 10,257 | **0 ch** | length |
-| 8 | 9,870 | **0 ch** | length |
-| 9 | 9,814 | **0 ch** | length |
-| 11 | 6,423 | **0 ch** | length |
+| 1 to 5 | 12,386 to 5,568 ch | stop | 16,055 down to 4,503 |
+| **6** | **0 ch** | **length** | **2,900** |
+| 7 | 0 ch | length | 2,805 |
+| 8 | 0 ch | length | 2,714 |
+| 9 | 0 ch | length | 2,645 |
+| 11 | 0 ch | length | 1,645 |
 
-Clean through turn 5, then it returns **empty content** from turn 6 onward. Accumulated answers
-plus user turns reach about 11,700 tokens by turn 6; add the preserved reasoning and the prompt
-is around 42,900 tokens against a 16,384 context.
+**The cause is context exhaustion driven by the model's own verbosity.** The generated-token count
+falls monotonically across the truncated turns, which is the signature of `available = ctx minus
+prompt` shrinking as the conversation grows. The accumulated conversation at turn 6 is 46,820
+characters, which at the 3.47 chars per token this code-heavy transcript actually runs implies a
+prompt near 13,500 tokens against a 16,384 context, leaving almost exactly the 2,900 tokens
+observed.
 
-**Read the failure signature carefully, because it is misleading.** The truncated turns report
-`finish_reason: length` while having generated only about **2,900 completion tokens against a
-32,768 budget.** Nothing came close to the budget. If you see `length` and respond by raising
-`max_tokens`, you will fix nothing, because the constraint is the context filling with replayed
-reasoning, not the completion allowance. Our own harness burned two retries per turn at ever
-larger budgets and still got empty content every time.
+It is **not** reasoning replay: our harness appends only `content` and never sends
+`reasoning_content` back, so 3a was never triggered in this run. It is also **not** the token
+budget. Those turns report `finish_reason: length` after 2,900 completion tokens against a
+**32,768** budget.
 
-**Mitigation:** set `preserve_thinking: false` for any multi-turn or agentic use. You lose
-cross-turn reasoning continuity, which is the point of the flag, but you get answers.
+**That failure signature is actively misleading.** `length` points every operator at `max_tokens`,
+and `max_tokens` is the one knob that cannot help. Our harness burned two retries per turn at
+progressively larger budgets and got empty content every time.
+
+**Mitigations, in order:** raise the server context, since 16384 is simply too small for this
+model's answer length; keep answers shorter with an explicit brevity instruction, since it emits
+8,000 to 12,000 character turns unprompted; and set `preserve_thinking: false` if your client
+round-trips reasoning.
 
 ### The control surface
 
@@ -366,6 +388,8 @@ not a human panel. **And most importantly: this run is not finished.**
   traps, architecture and serving characterised. Behavioral battery in progress.
 - `2026-08-14` (live, +2h): integrity/spine judged at 39/40 with zero over-gating. Throughput
   re-measured on 3.8 itself for all three serving boxes, replacing figures carried over from 3.6.
-- `2026-08-14` (live, +2h30): trap 3 documented. Multi-turn truncation root-caused to
-  `preserve_thinking` replaying prior reasoning, not to the token budget. Corrects an earlier
-  in-progress note on this page that attributed it to budget exhaustion.
+- `2026-08-14` (live, +2h30): trap 3 documented, then corrected. Multi-turn truncation is
+  context exhaustion from the model's own answer length, evidenced by monotonically falling
+  generated-token counts. An earlier version of this section attributed it to `preserve_thinking`
+  replaying reasoning; that replay is real and documented as 3a, but our harness never sent
+  `reasoning_content` back, so it was not the cause of the measured failure.
