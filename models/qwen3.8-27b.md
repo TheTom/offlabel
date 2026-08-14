@@ -58,13 +58,62 @@ Verified against the server's own `/apply-template`:
 
 Set `medium` and you get no reasoning instruction, silently. It looks like it worked.
 
+### ⚠️ Trap 3: `preserve_thinking` defaults to true, and it is why agent loops die
+
+This is the one that will actually break your deployment, and it is the product of traps 1 and 3
+multiplying.
+
+`preserve_thinking` defaults to **true**, which re-injects **every prior turn's reasoning** into
+every subsequent prompt. Verified against the server's own `/apply-template` with a single prior
+assistant turn carrying 4,000 characters of reasoning:
+
+| setting | rendered prompt | prior reasoning echoed |
+|---|---|---|
+| (default) | 4,405 chars | **yes** |
+| `preserve_thinking: true` | 4,405 chars | yes |
+| `preserve_thinking: false` | **386 chars** | no |
+
+An 11x prompt inflation from **one** prior turn. Now combine it with trap 1, where the default
+reasoning effort is `xhigh`: in our long-running battery, turn 1 alone produced **51,616
+characters of reasoning**, roughly 12,900 tokens, all of which is re-sent on turn 2.
+
+**The observed failure.** A 12-turn debugging loop at ctx 16384:
+
+| turn | reasoning (chars) | answer | finish |
+|---|---|---|---|
+| 1 | 51,616 | 12,386 ch | stop |
+| 2 | 24,424 | 9,198 ch | stop |
+| 3 | 20,906 | 9,197 ch | stop |
+| 4 | 15,527 | 8,329 ch | stop |
+| 5 | 12,230 | 5,568 ch | stop |
+| **6** | 11,369 | **0 ch** | **length** |
+| 7 | 10,257 | **0 ch** | length |
+| 8 | 9,870 | **0 ch** | length |
+| 9 | 9,814 | **0 ch** | length |
+| 11 | 6,423 | **0 ch** | length |
+
+Clean through turn 5, then it returns **empty content** from turn 6 onward. Accumulated answers
+plus user turns reach about 11,700 tokens by turn 6; add the preserved reasoning and the prompt
+is around 42,900 tokens against a 16,384 context.
+
+**Read the failure signature carefully, because it is misleading.** The truncated turns report
+`finish_reason: length` while having generated only about **2,900 completion tokens against a
+32,768 budget.** Nothing came close to the budget. If you see `length` and respond by raising
+`max_tokens`, you will fix nothing, because the constraint is the context filling with replayed
+reasoning, not the completion allowance. Our own harness burned two retries per turn at ever
+larger budgets and still got empty content every time.
+
+**Mitigation:** set `preserve_thinking: false` for any multi-turn or agentic use. You lose
+cross-turn reasoning continuity, which is the point of the flag, but you get answers.
+
 ### The control surface
 
 - **`enable_thinking`** is the master switch. Undefined or `true` means thinking on. Explicit
   `false` emits an empty `<think></think>` block.
 - **`reasoning_effort`** applies only when thinking is on. Ladder is **`low` / `medium` / `xhigh`**.
   **There is no `high`.**
-- **`preserve_thinking`** (default true) carries prior-turn reasoning into later turns.
+- **`preserve_thinking`** (default true) carries prior-turn reasoning into later turns. At
+  the default `xhigh` effort this is the single most expensive default in the config. See trap 3.
 - Out-of-range values **raise an exception** rather than rendering silently. This is better than
   Muse Glimmer, whose template interpolated any string you gave it, so a typo produced a broken
   prompt with no error.
@@ -92,7 +141,7 @@ before this release, specifically so this comparison would be valid.
 | layers | fewer | **64** |
 | context | shorter | **262144** |
 | vision | no | **yes** |
-| reasoning knobs | one (`enable_thinking`) | **two**, one of which is a silent no-op |
+| reasoning knobs | one (`enable_thinking`) | **three**, one a silent no-op and one that breaks agent loops by default |
 | default cost | reasons by default | reasons by default **at `xhigh`** |
 
 **Config got worse, not better.** 3.6 had one clean switch. 3.8 adds a graded dial whose middle
@@ -317,3 +366,6 @@ not a human panel. **And most importantly: this run is not finished.**
   traps, architecture and serving characterised. Behavioral battery in progress.
 - `2026-08-14` (live, +2h): integrity/spine judged at 39/40 with zero over-gating. Throughput
   re-measured on 3.8 itself for all three serving boxes, replacing figures carried over from 3.6.
+- `2026-08-14` (live, +2h30): trap 3 documented. Multi-turn truncation root-caused to
+  `preserve_thinking` replaying prior reasoning, not to the token budget. Corrects an earlier
+  in-progress note on this page that attributed it to budget exhaustion.
