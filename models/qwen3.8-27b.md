@@ -67,6 +67,21 @@ Verified against the server's own `/apply-template`:
 
 Set `medium` and you get no reasoning instruction, silently. It looks like it worked.
 
+**And it is not inert in effect, only as an instruction.** Field notes from Defilan (issue #24)
+add the behavioral half: with no effort line rendered, the model does not fall back to something
+neutral, it reasons *more* than an explicit `low`. Reasoning characters at `max_tokens` 1024,
+temperature 0:
+
+| prompt | low | medium | xhigh |
+|---|---|---|---|
+| code | 347 | 374 | 644 |
+| explain | 1031 | **1633** | 1329 |
+| debug | 1429 | **2974** | 4297 |
+
+`medium` sat above `low` on all three prompts and above `xhigh` on one. So the danger is not that
+nothing happens, it is that nothing *steers*: someone setting `medium` expecting a midpoint gets
+unguided behavior that runs hotter than the low rung they could have asked for.
+
 ### ⚠️ Trap 3: `preserve_thinking` defaults to true, and injects empty think blocks
 
 Two distinct problems live behind this one flag. Keep them separate, because they have different
@@ -169,6 +184,16 @@ budget. Those turns report `finish_reason: length` after 2,900 completion tokens
 and `max_tokens` is the one knob that cannot help. Our harness burned two retries per turn at
 progressively larger budgets and got empty content every time.
 
+**There is a second cause with the identical signature, and for it `max_tokens` *is* the fix.**
+Defilan (issue #24) reached the same empty-content / `finish_reason: length` wall at **turn 3**, not
+6, by running a conservative `max_tokens` 2048 against ctx 16384 with `prompt_tokens` at only 3,851
+of 16,384. That is 23% of context, so his was output-budget exhaustion, a different wall reached
+first because his budget was small. Two causes, one signature, and they are only distinguishable by
+checking `completion_tokens` against **both** bounds: if it equals `max_tokens`, raise the budget;
+if it equals `ctx minus prompt`, raise the context. An operator running a tight output budget will
+hit the output wall first and reasonably conclude our context fix "did not work" when they simply
+have the other one.
+
 **Mitigations, in order:** raise the server context, since 16384 is simply too small for this
 model's answer length; keep answers shorter with an explicit brevity instruction, since it emits
 8,000 to 12,000 character turns unprompted; and set `preserve_thinking: false` if your client
@@ -179,7 +204,12 @@ round-trips reasoning.
 - **`enable_thinking`** is the master switch. Undefined or `true` means thinking on. Explicit
   `false` emits an empty `<think></think>` block.
 - **`reasoning_effort`** applies only when thinking is on. Ladder is **`low` / `medium` / `xhigh`**.
-  **There is no `high`.**
+  **There is no `high`.** And it does not degrade quietly: Defilan (issue #24) confirms that sending
+  `reasoning_effort: high` to the stock template raises a request-time **HTTP 500** (`Jinja
+  Exception: Unexpected reasoning effort high. Supported types are xhigh (default), medium, and
+  low.`), not a silent downgrade. Anyone wiring `high` into a client on the stock template gets a
+  hard failure, not a fallback. The error text is also a tidy independent confirmation of the
+  `xhigh` default.
 - **`preserve_thinking`** (default true) carries prior-turn reasoning into later turns. At
   the default `xhigh` effort this is the single most expensive default in the config. See trap 3.
 - Out-of-range values **raise an exception** rather than rendering silently. This is better than
@@ -219,6 +249,58 @@ round-trips reasoning.
   giving this model the context its own verbosity needs. For long agent loops, serve it with a 4-bit
   KV and a generous window.
 
+### MTP speculative decoding: the biggest single-stream lever, and it ships in a different GGUF
+
+The original card had no MTP section for a simple reason: the `tested_on` quant is the unsloth
+Q4_K_M, and **that repo does not ship the MTP head.** Defilan (issue #24) found the piece we were
+missing. Qwen3.8 ships its multi-token-prediction head as a **separate 1.6 GiB GGUF**
+(`mtp-Qwen3.8-27B-Q4_0.gguf`), and it exists **only in `ggml-org/Qwen3.8-27B-GGUF`**, not in the
+unsloth repo (checked, including under `BF16/`). Because the draft head is a separate cheap model
+rather than self-speculation, the speedup is large: **up to ~3.5x single-stream.**
+
+GB10, ctx 16384, f16 KV, temperature 0, n=5 (Defilan's measurements):
+
+| prompt | no spec | nDraftMax 3 | nDraftMax 5 | nDraftMax 7 |
+|---|---|---|---|---|
+| code generation | 11.02 | 29.40 | 35.89 | **37.70** |
+| conceptual explanation | 10.98 | **22.14** | 21.00 | 19.91 |
+| debugging | 10.98 | **20.98** | 19.34 | 18.08 |
+
+**The optimum depends on the workload.** Code generation keeps improving as you draft further
+ahead; prose peaks at nDraftMax 3 and then gives back a third of the gain by 7. The mechanism is
+draft acceptance falling as you draft deeper (0.469 at 3, 0.308 at 5, 0.229 at 7 on the debug
+prompt). This exactly matches what we measured independently on the vLLM and SGLang speculative
+paths on the same GB10: DSpark/EAGLE hit 45 to 53 tok/s on structured code and math, collapse to
+~16 on free prose, and acceptance-length, not acceptance-rate, is what tracks throughput. Frame MTP
+guidance as **measure it on your own workload**, with **nDraftMax 3 as the safe general default**
+and higher values only for code-heavy use.
+
+**This inverts the serving recommendation for single-stream speed.** The two files both called
+Q4_K_M are not the same file:
+
+| repo | size | MTP head | best code tok/s |
+|---|---|---|---|
+| `unsloth/Qwen3.8-27B-GGUF` | 15.93 GiB | no | 12.07 (no MTP possible) |
+| `ggml-org/Qwen3.8-27B-GGUF` | 17.67 GiB | **yes** | **37.70** (MTP nDraftMax 7) |
+
+The unsloth file is 9.5% faster at plain decode (memory-bandwidth bound, exactly the "take the
+4-bit GGUF" logic in the engine-choice bullet above). But taking it forfeits 3.1x, because it is the
+only choice that cannot turn the big lever. **For single-stream speed, take the larger, slower
+ggml-org file** and run MTP. The plain-decode analysis still holds for the batched/concurrent case
+and for anyone not running speculation; it just isn't the fast path for one user.
+
+**A gfx1151 (Strix Halo) row, with two Vulkan cautions.** On AMD Strix Halo (Radeon 8060S, RADV,
+llama.cpp Vulkan, `--no-mmap`), baseline is **11.26 tok/s** (marginally ahead of the GB10 on the
+same file), reaching **33.03 at nDraftMax 5** and, unlike CUDA, getting *worse* at 7. Two things the
+CUDA and Metal numbers do not surface, and that you want to know before quoting a speculated Vulkan
+figure:
+
+- **Speculation makes output non-deterministic at temperature 0** on Vulkan (identical requests
+  return different generation lengths run to run). Every CUDA arm was deterministic.
+- **Speculation is unstable there.** Worst-case spread across 5 identical samples was **31.11% at
+  nDraftMax 5** on Strix versus 3.52% on the GB10. The *unspeculated* Vulkan baseline was the single
+  most stable measurement (0.14% spread), so it is speculation introducing the variance, not the
+  platform. A single-sample speculated Vulkan number can be off by a third; sample it.
 
 ### The community "fixed" template, and exactly what it can and cannot fix
 
@@ -798,3 +880,10 @@ differ, so smoke-test your own.
   two to three seeds. Thinking ablation resolved (low beats xhigh, thinking is a net cost). Prompt
   mitigations judged (no cheap universal fix). Community-template A/B settled (removes empty blocks,
   changes no behavioral result). Card promoted from preliminary to final.
+- `2026-08-16`: folded in field notes from Defilan (issue #24), two stacks the card did not cover
+  (a GB10 on CUDA and a Strix Halo gfx1151 on Vulkan). Added the MTP speculative-decoding section
+  (the head ships as a separate 1.6 GiB GGUF in `ggml-org`, not unsloth; up to ~3.5x, workload-
+  dependent optimum, which matches our independent vLLM/SGLang measurements), a gfx1151 throughput
+  row with two Vulkan-specific cautions, the `reasoning_effort: high` HTTP 500 correction, the
+  `medium`-reasons-more-than-`low` behavioral addendum to Trap 2, and the second (output-budget)
+  cause of the turn-6 signature. Every existing finding Defilan probed reproduced.
