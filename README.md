@@ -86,6 +86,12 @@ instead of each write-up inventing its own frame:
 Coverage per axis is tagged **✅ measured** (formally scored head-to-head), **🟡 observational** (noted from use,
 not formally scored), or **⬚ backlog** (not tested yet, we say so instead of guessing).
 
+## Agentic workflow case studies
+
+These observational studies follow real implementation and independent review cycles. They complement the model guides; they are not held-out model rankings.
+
+- [DeepSeek-V4.1-Flash-1017 EXL3 2.9 bpw in Harness 0.2.1-rc.2](case-studies/deepseek-v41-flash-1017-harness-agentic.md): in-progress, anonymized implementation/review case study. Reusable prompts, lifecycle checks, exact evidence oracles, and explicit attribution limits.
+
 ## Cross-model lessons
 
 Recurring patterns that show up across more than one model (thinking-mode trade-offs, RL-training artifacts,
