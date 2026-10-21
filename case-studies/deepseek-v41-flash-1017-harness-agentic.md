@@ -121,6 +121,49 @@ The next question is whether recall helps answer real questions. Freeze an offli
 
 Missing usefulness evidence is a different qualification gap from storage corruption. A passing integrity suite proves neither answer quality nor deployment readiness.
 
+## Continuing authorized work without repeated planning stops
+
+The next exchange exposed a supervisor-side mistake: preparation-only prompts kept ending an existing implementation session at another handoff. The operator wanted the remaining milestone executed. A narrow task can be useful without making every package require another human round trip.
+
+The revised instruction used a continuing loop: choose one dependency-ready unmet contract, define its oracle, implement the smallest package, exercise the consumer path, run affected checks, record a reviewable checkpoint, and continue. Accepted investigations stayed closed unless new evidence affected them. A missing input for one gate did not block unrelated authorized work.
+
+After that instruction, the worker reported an offline real-data trial, a subprocess consumer and archive replay. The separate reviewer ran 178 tests successfully and inspected the private trial script and receipts, but did not rerun the private trial. This is evidence of progress under that assignment, not a controlled demonstration that the wording caused the progress.
+
+A reusable continuation brief:
+
+```text
+Continue the existing authorized milestone. Keep accepted architecture and
+verified findings. Reconcile the remaining requirements against evidence, then
+immediately work on the next dependency-ready package.
+
+For each package: define the oracle, make the smallest change, exercise the
+consumer route, run affected checks and meaningful negative controls, record a
+reviewable checkpoint, then continue. Do not rerun unchanged full suites after
+every evidence-only step or stop at another preparation report.
+
+Use only the already selected sources and approved execution environment.
+If one gate needs a missing input, name it and continue independent work.
+Stop when the milestone has its required evidence or all remaining packages
+need concrete missing inputs. Keep release approval separate from your checks.
+```
+
+This is a scope instruction, not permission to deploy, discover unrelated private data, start new model infrastructure or publish changes. The supervisor must carry the actual authorization boundaries into each assignment.
+
+## Real-data qualification: four ways a passing result can overstate usefulness
+
+The latest review identified gaps beyond storage correctness:
+
+| Gap | Why the evidence was insufficient | Reusable check |
+|---|---|---|
+| Some scorers consumed only the first page | Complete enumeration in another query did not prove those scorers saw later evidence | Place decisive evidence on a later page and require the same scorer to find it, or report budget-limited incomplete coverage |
+| Decision labels reused production's keyword pattern | A separately written evaluator could miss the same meaningful decisions as production | Independently label selected source examples, including relevant examples without those keywords; separate parser agreement from semantic recall |
+| Real subprocess transport constructed the server with mocked dependencies | The test proved transport behavior, not the entire configured startup path | Reconcile existing startup/config checks and qualify any remaining route with isolated state |
+| Exhaustive retrieval returned large responses | Enumeration did not show that useful evidence fits an assistant's context budget | Freeze a bundle budget and score relevant evidence retained, omissions, citations and serialized size |
+
+The recorded enumeration was roughly 97 KB for a day and 5 MB across week/month pagination. These are reviewer-reported measurements for one selected corpus, not general performance figures. The worker also disclosed irrelevant items for narrowly focused questions. That disclosure is useful evidence; it does not make the retrieval qualified.
+
+Evaluate bounded context delivery separately from exhaustive retrieval and model-written answers. Use the existing bundle interface before proposing a new ranking system. Keep absent positive examples, limited calendar breadth and unexecuted answer comparisons visible. The latest results do not establish improved assistant answers.
+
 ## Coverage and limits
 
 | Offlabel axis | Coverage here |
@@ -140,7 +183,7 @@ No comparative model ranking, success rate, cost saving, exhaustive concurrency 
 
 ## Evidence access and reproducibility limits
 
-The source material is operator-relayed worker handoffs, separate reviewer reports, and direct test/source inspection in a session-history project. The authoring session directly ran the 14 new tests at R4. The 173/70 results at R5 are attributed to the separate reviewer, not rerun while writing this article. Project identifiers, private transcripts, machine paths and project commit IDs are omitted intentionally; R1 through R5 are local labels for successive revisions, not public benchmark versions.
+The source material is operator-relayed worker handoffs, separate reviewer reports, and direct test/source inspection in a session-history project. The authoring session directly ran the 14 new tests at R4. The 173/70 results at R5 and the later 178-test run are attributed to the separate reviewer, not rerun while writing this article. The later private trial was worker-executed and reviewer-inspected, not independently rerun. Project identifiers, private transcripts, machine paths and project commit IDs are omitted intentionally; R1 through R5 are local labels for successive revisions, not public benchmark versions.
 
 The underlying private evidence is not packaged for public reproduction. Readers can reuse the methodology and prompts, but cannot independently reproduce the historical counts from this document alone. The reported counts therefore remain observational evidence. No positive outcome, refusal score or pressure-resistance score is inferred for untested axes.
 
@@ -149,7 +192,7 @@ The underlying private evidence is not packaged for public reproduction. Readers
 - Verify the exact downloadable quant revision and a weight manifest fingerprint.
 - Audit historical Harness versions and lead/teammate model assignments.
 - Publish standalone synthetic examples of weak versus exact oracles without project data.
-- Complete an offline usefulness trial; distinguish retrieval quality from answer quality.
+- Close the offline trial's pagination, semantic-oracle, configured-consumer and bounded-bundle gaps; answer-quality comparison remains unexecuted.
 - Measure supervisor repair effort and total elapsed cost before making efficiency claims.
 - Add held-out prompt comparisons, including correct implementations where no defect should be reported.
 
@@ -160,3 +203,5 @@ Related: [cross-model patterns](../patterns.md), [Muse calibration and clause co
 ## Changelog
 
 - 2026-10-21: initial observational workflow case study through R5; bounded integrity/evidence review passed, usefulness still unqualified.
+
+- 2026-10-21: added the continuing-package workflow and later real-data qualification gaps. Attributed the 178-test review separately from the worker-executed private trial; no answer-quality claim.
