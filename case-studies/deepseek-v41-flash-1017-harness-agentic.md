@@ -164,6 +164,43 @@ The recorded enumeration was roughly 97 KB for a day and 5 MB across week/month 
 
 Evaluate bounded context delivery separately from exhaustive retrieval and model-written answers. Use the existing bundle interface before proposing a new ranking system. Keep absent positive examples, limited calendar breadth and unexecuted answer comparisons visible. The latest results do not establish improved assistant answers.
 
+## Classification repair: separate cases still missed interacting rules
+
+A later worker report described a focused decision-classification improvement using 23 synthetic development cases: seven decisions, eleven non-decisions and five ambiguous examples. Reported positive recall rose from 2/7 to 7/7, with false positives falling from 1/11 to 0/11. The worker also revisited the original private labels, reclassified one as a completion requirement and retained ambiguity on two directives. That is useful label adjudication; expected answers should be correctable when source context warrants it.
+
+The separate reviewer ran 182 continuity tests successfully, then reproduced false positives on straightforward variations:
+
+- "Have we decided which database to use?"
+- "We have not decided which database to use."
+- "If we decided to use SQLite, would it work?"
+- "Maybe we should revisit the decision tomorrow."
+- `The guide says "We Decided to use SQLite."`
+
+The recorded cause was rule ordering and incomplete exclusions: explicit decision words returned before question/conditional checks, negation missed "not decided," and quote handling was case-sensitive. The author of this article has not independently rerun those probes. These findings concern this implementation and reported review, not a general failure rate for the model.
+
+The transferable lesson is to test interactions between rules. A suite can contain questions, negation, quotations and explicit decisions individually while missing an explicit decision word inside a question or quotation. Require contrast pairs and combined conditions, including valid positives with uncertainty elsewhere: "We decided to use SQLite, although we might revisit it later." A blanket exclusion for "might" would trade the false positive for a false negative.
+
+There is also a deployment-state question: classification flags were materialized during ingestion. Changing the function does not establish that previously imported records receive the improvement. The next requested check uses a synthetic store produced by the actual prior implementation to establish whether derived fields remain stale. Refresh/versioning behavior is still unqualified here; no migration defect or successful repair is claimed without that check.
+
+### A focused task-brief addition
+
+```text
+Define what this view promises before editing: candidates, confirmed facts,
+or another explicit interpretation. Keep supplied failures as development cases.
+
+Test affirmative, negated, interrogative, hypothetical and quoted forms in
+combination, including positives with unrelated uncertainty. Inspect precedence
+and early returns. Keep ambiguous labels separate; do not redefine the contract
+or tune expected labels to make the implementation pass.
+
+Reserve evaluation cases not used to design the rules. If outputs are persisted,
+check both fresh inputs and records created by the previous implementation.
+Report recall, false positives and stored-state behavior separately from the
+relevance of any downstream context bundle.
+```
+
+Independent evaluation requires more than placing cases in a different file. Cases prepared before a change can still guide its design and become development data. Likewise, a narrow code diff can require broader compatibility verification when its outputs survive across sessions. These are proposed operating practices grounded in the review sequence, not measured prompt-treatment effects.
+
 ## Coverage and limits
 
 | Offlabel axis | Coverage here |
@@ -195,6 +232,7 @@ The underlying private evidence is not packaged for public reproduction. Readers
 - Close the offline trial's pagination, semantic-oracle, configured-consumer and bounded-bundle gaps; answer-quality comparison remains unexecuted.
 - Measure supervisor repair effort and total elapsed cost before making efficiency claims.
 - Add held-out prompt comparisons, including correct implementations where no defect should be reported.
+- Qualify classification rule combinations and previously persisted derived outputs; do not equate development-set accuracy with semantic recall.
 
 Future experiments: several held-out tasks including correct implementations; concise assignment versus long checklist; fresh verifier versus continued author session; reasoning-effort ablation only after effective settings are verified. Interleave arms, hold budgets/tools constant, record serving contention and cache conditions, and score real reproductions, false accusations, usable deliverables and supervisor repair effort. Known failures from this case are development examples, not held-out evaluation cases.
 
@@ -205,3 +243,5 @@ Related: [cross-model patterns](../patterns.md), [Muse calibration and clause co
 - 2026-10-21: initial observational workflow case study through R5; bounded integrity/evidence review passed, usefulness still unqualified.
 
 - 2026-10-21: added the continuing-package workflow and later real-data qualification gaps. Attributed the 178-test review separately from the worker-executed private trial; no answer-quality claim.
+
+- 2026-10-21: added the classification-repair exchange, attributed 182-test review and counterexamples, contrast-case guidance, and the unresolved persisted-output question. No new probe executions in this update.
